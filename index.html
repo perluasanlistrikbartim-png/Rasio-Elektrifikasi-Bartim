@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>WebGIS Rasio Elektrifikasi PLN – Barito Timur</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+<style>
+/* ===================== PREMIUM DARK UI ===================== */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:'Segoe UI',Arial,sans-serif;
+  background:radial-gradient(circle at center,#020216,#000010 70%,#000000);
+  color:#e0f7ff; overflow:hidden;
+}
+#wrap{display:flex;height:100vh;width:100vw}
+#map{flex:1}
+
+/* PANEL */
+#panel{
+  width:380px;background:linear-gradient(180deg,#000814,#001122);
+  border-left:2px solid #f4b400;padding:14px;overflow:auto;
+  box-shadow:-6px 0 20px rgba(0,0,0,.6)
+}
+#panel h3{margin:6px 0 10px;color:#f4b400;border-bottom:1px solid #333;padding-bottom:6px}
+#info{font-size:13px;line-height:1.6}
+#panel b{color:#7dd3fc}
+
+/* BUTTON & INPUT */
+button{
+  background:linear-gradient(135deg,#f4b400,#ff9800);
+  color:#000;border:none;border-radius:6px;
+  padding:8px 14px;margin-top:8px;cursor:pointer;font-weight:600
+}
+input{
+  width:100%;padding:8px;margin-top:4px;border-radius:6px;
+  border:1px solid #333;background:#020216;color:#e0f7ff
+}
+label{font-size:12px;margin-top:8px;display:block;color:#94a3b8}
+
+/* LABEL DESA */
+.label-desa{
+  background:rgba(0,0,0,.75);
+  border:1px solid #f4b400;border-radius:4px;
+  padding:2px 6px;font-size:11px;font-weight:600;
+  color:#f4b400;white-space:nowrap;
+  box-shadow:0 0 6px rgba(244,180,0,.6)
+}
+
+/* TABLE */
+#tblwrap{height:38vh;overflow:auto;background:#000814}
+table{width:100%;border-collapse:collapse}
+th{
+  position:sticky;top:0;background:#001122;color:#f4b400;
+  font-size:12px;padding:6px;border-bottom:2px solid #f4b400
+}
+td{padding:6px;font-size:12px;border-bottom:1px solid #222}
+tr:hover{background:#001a33;cursor:pointer}
+tr.active{background:#f4b400;color:#000;font-weight:600}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-thumb{background:#f4b400;border-radius:6px}
+
+/* RESPONSIVE */
+@media(max-width:900px){#panel{width:300px}}
+@media(max-width:700px){
+  #wrap{flex-direction:column}
+  #panel{width:100%;height:40vh;border-left:none;border-top:2px solid #f4b400}
+  #map{height:60vh}
+}
+</style>
+</head>
+
+<body>
+<div id="wrap">
+  <div id="map"></div>
+
+  <div id="panel">
+    <h3 id="judul">Pilih Desa</h3>
+
+    <div id="view">
+      <div id="info"></div>
+      <button onclick="openEdit()">EDIT</button>
+    </div>
+
+    <div id="edit" style="display:none">
+      <label>Rumah Tangga Berlistrik PLN</label>
+      <input id="rt_pln" type="number">
+      <label>Rumah Tangga Berlistrik Non PLN</label>
+      <input id="rt_non_pln" type="number">
+      <button onclick="save()">SIMPAN</button>
+      <button onclick="cancelEdit()">BATAL</button>
+    </div>
+  </div>
+</div>
+
+<div id="tblwrap">
+<table id="tbl">
+<thead>
+<tr>
+<th>No</th>
+<th>Kecamatan</th>
+<th>Desa/Kelurahan</th>
+<th>RT PLN</th>
+<th>RT Non PLN</th>
+<th>Jumlah</th>
+<th>Rasio PLN (%)</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+const API="https://script.google.com/macros/s/AKfycbxa-soCZiiqGB86ND1s5tKaIBwHSz0OGmv9OgJoDXYLKS1DvgcGy6e1sInZI3JD0oSm/exec";
+
+let map=L.map('map').setView([-2.0,115.2],8);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+let data=[],markers={},selected=null;
+
+fetch(API+'?action=getDesa').then(r=>r.json()).then(j=>{
+  data=j.data; renderMap(); renderTable();
+});
+
+function renderMap(){
+  data.forEach(d=>{
+    let m=L.marker([d.lat,d.lng]).addTo(map);
+    m.bindTooltip(d.nama_wilayah,{permanent:true,direction:'top',className:'label-desa'});
+    m.on('click',()=>select(d.id_desa));
+    markers[d.id_desa]=m;
+  });
+}
+function renderTable(){
+  const tb=document.querySelector('#tbl tbody'); tb.innerHTML='';
+  data.forEach((d,i)=>{
+    let tr=document.createElement('tr');
+    tr.id='row_'+d.id_desa;
+    tr.onclick=()=>select(d.id_desa);
+    tr.innerHTML=`
+      <td>${i+1}</td>
+      <td>${d.kecamatan}</td>
+      <td>${d.nama_wilayah}</td>
+      <td>${d.rt_pln}</td>
+      <td>${d.rt_non_pln}</td>
+      <td>${d.jumlah}</td>
+      <td>${Number(d.rasio_pln).toFixed(2)}</td>`;
+    tb.appendChild(tr);
+  });
+}
+function select(id){
+  selected=data.find(x=>x.id_desa===id);
+  document.querySelectorAll('tr').forEach(r=>r.classList.remove('active'));
+  document.getElementById('row_'+id)?.classList.add('active');
+  map.setView([selected.lat,selected.lng],12);
+  document.getElementById('judul').innerText=selected.nama_wilayah;
+  document.getElementById('info').innerHTML=
+    `Kecamatan: <b>${selected.kecamatan}</b><br>
+     RT PLN: <b>${selected.rt_pln}</b><br>
+     RT Non PLN: <b>${selected.rt_non_pln}</b><br>
+     Jumlah RT: <b>${selected.jumlah}</b><br>
+     Rasio PLN: <b>${Number(selected.rasio_pln).toFixed(2)}%</b>`;
+}
+function openEdit(){
+  let pin=prompt("Masukkan PIN");
+  fetch(API,{method:'POST',body:JSON.stringify({action:'checkPin',pin})})
+  .then(r=>r.json()).then(j=>{
+    if(j.status==='ok'){
+      view.style.display='none'; edit.style.display='block';
+      rt_pln.value=selected.rt_pln; rt_non_pln.value=selected.rt_non_pln;
+      window._pin=pin;
+    } else alert('PIN salah');
+  });
+}
+function cancelEdit(){ edit.style.display='none'; view.style.display='block'; }
+function save(){
+  fetch(API,{method:'POST',body:JSON.stringify({
+    action:'updateDesa', id_desa:selected.id_desa,
+    rt_pln:Number(rt_pln.value), rt_non_pln:Number(rt_non_pln.value),
+    pin:window._pin
+  })}).then(r=>r.json()).then(j=>{
+    if(j.status==='ok') location.reload(); else alert(j.message);
+  });
+}
+</script>
+</body>
+</html>
