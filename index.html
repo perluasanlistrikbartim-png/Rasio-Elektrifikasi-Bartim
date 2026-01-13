@@ -2,236 +2,324 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>WebGIS Rasio Elektrifikasi PLN – Barito Timur</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="data:,">
+<title>WebGIS Rasio Elektrifikasi – Kabupaten Barito Timur</title>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 
 <style>
-*{box-sizing:border-box}
-html,body{height:100%}
+/* ================= BASIC ================= */
 body{
   margin:0;
-  font-family:'Segoe UI',Arial,sans-serif;
-  background:radial-gradient(circle at center,#020216,#000010 70%,#000000);
+  background:#020216;
   color:#e0f7ff;
+  font-family:Segoe UI, sans-serif;
+}
+
+/* ================= HEADER ================= */
+header{
+  padding:16px;
+  background:#000814;
+  border-bottom:3px solid #f4b400;
+  position:relative;
   overflow:hidden;
 }
 
-/* ===== FX ===== */
-#neon-road{
-  position:fixed;inset:0;
-  background:
-    linear-gradient(180deg,transparent 70%,rgba(244,180,0,.25)),
-    repeating-linear-gradient(
-      90deg,
-      rgba(244,180,0,.08) 0px,
-      rgba(244,180,0,.08) 2px,
-      transparent 2px,
-      transparent 120px
-    );
-  animation:roadMove 24s linear infinite;
-  pointer-events:none;z-index:0;
-}
-@keyframes roadMove{
-  from{background-position:0 0}
-  to{background-position:1400px 0}
-}
-
-body::before{
+/* ⚡ KILATAN CAHAYA */
+header::after{
   content:"";
-  position:fixed;
-  inset:12px;
-  border:2px solid #f4b400;
-  border-radius:16px;
-  box-shadow:0 0 20px rgba(244,180,0,.35);
-  pointer-events:none;
-  z-index:9;
+  position:absolute;
+  top:0; left:-120%;
+  width:120%;
+  height:100%;
+  background:linear-gradient(
+    120deg,
+    transparent 30%,
+    rgba(255,255,255,.25),
+    transparent 70%
+  );
+  animation:kilat 6s infinite;
 }
 
-/* ===== LAYOUT ===== */
-#wrap{display:flex;height:100vh;z-index:2;position:relative}
-#map{flex:1}
-#panel{
-  width:380px;
-  background:linear-gradient(180deg,#000814,#001122);
-  border-left:2px solid #f4b400;
+@keyframes kilat{
+  0%,85%{left:-120%}
+  100%{left:120%}
+}
+
+.header-inner{
+  max-width:1200px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.logo{height:52px}
+
+.title{
+  text-align:center;
+  flex:1;
+}
+.title h1{margin:0;font-size:1.4rem}
+.title small{color:#ffe08a}
+
+/* ================= CONTAINER ================= */
+.container{
+  max-width:1200px;
+  margin:auto;
   padding:14px;
+}
+
+/* ================= FILTER ================= */
+select{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  font-size:15px;
+  background:#071a33;
+  color:#fff;
+  margin-bottom:12px;
+}
+
+/* ================= MAP ================= */
+#map{
+  height:65vh;
+  border-radius:16px;
+  box-shadow:0 0 20px #000;
+  position:relative;
+  overflow:hidden;
+}
+
+/* ⚡ KILATAN MAP */
+#map::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.12),transparent 60%);
+  animation:mapFlash 8s infinite;
+  pointer-events:none;
+}
+
+@keyframes mapFlash{
+  0%,70%{opacity:0}
+  75%{opacity:1}
+  100%{opacity:0}
+}
+
+/* ================= TABLE ================= */
+.box-table{
+  margin-top:18px;
+  background:#071427;
+  border-radius:16px;
+  padding:12px;
+}
+
+.table-title{
+  font-weight:700;
+  color:#ffe08a;
+  margin-bottom:10px;
+}
+
+.table-scroll{
+  max-height:45vh;
   overflow:auto;
+  border-radius:10px;
 }
 
-/* ===== PANEL ===== */
-h3{
-  margin:6px 0 10px;
-  color:#f4b400;
-  border-bottom:1px solid #333;
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
 }
 
-label{font-size:12px;color:#94a3b8;margin-top:6px;display:block}
-select,input{
-  width:100%;padding:7px;border-radius:6px;
-  border:1px solid #333;background:#020216;color:#e0f7ff
-}
-button{
-  background:linear-gradient(135deg,#f4b400,#ff9800);
-  color:#000;border:none;border-radius:6px;
-  padding:8px 14px;margin-top:10px;font-weight:600;cursor:pointer
+th,td{
+  padding:8px 10px;
+  border-bottom:1px solid rgba(255,255,255,.08);
 }
 
-/* ===== LABEL ===== */
+th{
+  position:sticky;
+  top:0;
+  background:#0b2442;
+  color:#9ecbff;
+}
+
+tr:hover{background:#12325c}
+tr.active{background:#1dd1a133}
+
+/* ================= MARKER ================= */
 .label-desa{
-  background:rgba(0,0,0,.75);
-  border:1px solid #f4b400;
-  border-radius:4px;
+  background:rgba(0,0,0,.7);
+  color:#ffe08a;
+  border-radius:6px;
   padding:2px 6px;
   font-size:11px;
-  font-weight:600;
-  color:#f4b400;
+  border:1px solid rgba(255,255,255,.25);
 }
 
-/* ===== TABLE ===== */
-#tblwrap{height:38vh;overflow:auto;background:#000814}
-table{width:100%;border-collapse:collapse}
-th{
-  position:sticky;top:0;
-  background:#001122;color:#f4b400;
-  font-size:12px;padding:6px;border-bottom:2px solid #f4b400
+/* ================= PANEL FLOAT ================= */
+#panel{
+  position:fixed;
+  top:110px;
+  right:20px;
+  width:320px;
+  background:linear-gradient(180deg,#071a33,#050f22);
+  border-radius:18px;
+  padding:14px;
+  box-shadow:0 12px 35px rgba(0,0,0,.85);
+  display:none;
+  z-index:999;
+  animation:slideIn .25s ease;
 }
-td{padding:6px;font-size:12px;border-bottom:1px solid #222}
-tr:hover{background:#001a33}
-tr.active{background:#f4b400;color:#000;font-weight:600}
+
+@keyframes slideIn{
+  from{transform:translateX(30px);opacity:0}
+  to{transform:translateX(0);opacity:1}
+}
+
+.panel-title{
+  font-weight:700;
+  color:#ffe08a;
+  margin-bottom:8px;
+}
+
+.info-block{
+  margin-bottom:6px;
+  padding-bottom:6px;
+  border-bottom:1px dashed rgba(255,255,255,.1);
+}
+
+.label{font-size:11px;color:#9ecbff}
+.value{font-weight:600;font-size:14px}
+
+/* ================= BUTTON ================= */
+button{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border:none;
+  border-radius:10px;
+  background:#f4b400;
+  font-weight:700;
+  cursor:pointer;
+}
 </style>
 </head>
 
 <body>
 
-<div id="neon-road"></div>
-
-<div id="wrap">
-  <div id="map"></div>
-
-  <div id="panel">
-    <h3>Filter Kecamatan</h3>
-
-    <label>Pilih Kecamatan</label>
-    <select id="filterKecamatan">
-      <option value="">-- pilih kecamatan --</option>
-      <option value="ALL">Semua Kecamatan</option>
-    </select>
-
-    <h3 id="judul">Belum ada data</h3>
-
-    <div id="view">
-      <div id="info">Silakan pilih kecamatan terlebih dahulu.</div>
-      <button onclick="openEdit()">EDIT</button>
+<header>
+  <div class="header-inner">
+    <div></div>
+    <div class="title">
+      <h1>WebGIS Rasio Elektrifikasi</h1>
+      <small>Kabupaten Barito Timur</small>
     </div>
+    <div></div>
+  </div>
+</header>
 
-    <div id="edit" style="display:none">
-      <label>Kecamatan</label>
-      <input id="e_kecamatan" disabled>
+<div class="container">
+  <select id="filterKec">
+    <option value="">— PILIH KECAMATAN —</option>
+    <option value="ALL">SEMUA KECAMATAN</option>
+  </select>
 
-      <label>Desa</label>
-      <input id="e_desa" disabled>
+  <div id="map"></div>
+</div>
 
-      <label>RT PLN</label>
-      <input id="rt_pln" type="number">
-
-      <label>RT Non PLN</label>
-      <input id="rt_non_pln" type="number">
-
-      <label>Jumlah</label>
-      <input id="e_jumlah" disabled>
-
-      <label>Rasio (%)</label>
-      <input id="e_rasio" disabled>
-
-      <button onclick="save()">SIMPAN</button>
-      <button onclick="cancelEdit()">BATAL</button>
+<div class="container">
+  <div class="box-table">
+    <div class="table-title">📊 Data Rasio Elektrifikasi</div>
+    <div class="table-scroll">
+      <table id="tbl">
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Kecamatan</th>
+            <th>Desa</th>
+            <th>RT PLN</th>
+            <th>RT Non PLN</th>
+            <th>Jumlah</th>
+            <th>Rasio (%)</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
   </div>
 </div>
 
-<div id="tblwrap">
-<table id="tbl">
-<thead>
-<tr>
-<th>No</th>
-<th>Kecamatan</th>
-<th>Desa</th>
-<th>RT PLN</th>
-<th>RT Non PLN</th>
-<th>Jumlah</th>
-<th>Rasio</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
+<div id="panel">
+  <div class="panel-title" id="pTitle"></div>
+  <div class="info-block"><div class="label">Kecamatan</div><div class="value" id="pKec"></div></div>
+  <div class="info-block"><div class="label">RT PLN</div><div class="value" id="pPln"></div></div>
+  <div class="info-block"><div class="label">RT Non PLN</div><div class="value" id="pNon"></div></div>
+  <div class="info-block"><div class="label">Jumlah</div><div class="value" id="pJml"></div></div>
+  <div class="info-block"><div class="label">Rasio</div><div class="value" id="pRasio"></div></div>
+  <div class="info-block"><div class="label">Keterangan</div><div class="value" id="pKet"></div></div>
+  <button onclick="editData()">✏️ Edit Data</button>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-const API="https://script.google.com/macros/s/AKfycbxa-soCZiiqGB86ND1s5tKaIBwHSz0OGmv9OgJoDXYLKS1DvgcGy6e1sInZI3JD0oSm/exec";
+/* ================= CONFIG ================= */
+const API_URL = "PASTE_URL_WEBAPP_GAS_DI_SINI";
 
-let map=L.map('map',{
-  zoomControl:true,
-  minZoom:7,
-  maxZoom:10   // ⬅️ zoom dibatasi
-}).setView([-2.0,115.2],8);
+/* ================= MAP ================= */
+const map = L.map("map",{minZoom:7,maxZoom:10}).setView([-2.1,115.1],8);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+const layer = L.layerGroup().addTo(map);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+/* ================= STATE ================= */
+let data=[], selected=null;
 
-let data=[],layer=L.layerGroup().addTo(map),selected=null;
-let zoomLocked=false;
-
-/* ===== LOAD DATA ===== */
-fetch(API+'?action=getDesa')
+/* ================= LOAD DATA ================= */
+fetch(API_URL+"?action=getDesa")
 .then(r=>r.json())
 .then(j=>{
   data=j.data;
   initFilter();
 });
 
-/* ===== INIT FILTER ===== */
 function initFilter(){
   const kec=[...new Set(data.map(d=>d.kecamatan))];
-  const sel=document.getElementById('filterKecamatan');
   kec.forEach(k=>{
-    let o=document.createElement('option');
+    let o=document.createElement("option");
     o.value=k;o.textContent=k;
-    sel.appendChild(o);
+    filterKec.appendChild(o);
   });
-
-  sel.onchange=()=>applyFilter(sel.value);
 }
 
-/* ===== APPLY FILTER ===== */
-function applyFilter(kec){
+filterKec.onchange=()=>render();
+
+/* ================= RENDER ================= */
+function render(){
   layer.clearLayers();
-  document.querySelector('#tbl tbody').innerHTML='';
-  selected=null;
+  document.querySelector("#tbl tbody").innerHTML="";
+  panel.style.display="none";
 
-  if(!kec){
-    document.getElementById('judul').innerText='Belum ada data';
-    document.getElementById('info').innerText='Pilih kecamatan untuk menampilkan data.';
-    return;
-  }
+  if(!filterKec.value) return;
 
-  let filtered=(kec==='ALL')?data:data.filter(d=>d.kecamatan===kec);
+  const list = filterKec.value==="ALL"
+    ? data
+    : data.filter(d=>d.kecamatan===filterKec.value);
 
   let bounds=[];
-  filtered.forEach((d,i)=>{
-    if(!d.latitude||!d.longitude) return;
 
-    let m=L.marker([+d.latitude,+d.longitude]).addTo(layer);
-    m.bindTooltip(d.nama_wilayah,{permanent:true,className:'label-desa'});
-    m.on('click',()=>select(d.id_desa));
+  list.forEach((d,i)=>{
+    const lat=+d.latitude, lng=+d.longitude;
+    if(!lat||!lng) return;
 
-    bounds.push([+d.latitude,+d.longitude]);
+    const m=L.marker([lat,lng]).addTo(layer)
+      .bindTooltip(d.nama_wilayah,{permanent:true,className:"label-desa"});
 
-    let tr=document.createElement('tr');
-    tr.id='row_'+d.id_desa;
-    tr.onclick=()=>select(d.id_desa);
+    m.on("click",()=>show(d));
+
+    bounds.push([lat,lng]);
+
+    const tr=document.createElement("tr");
     tr.innerHTML=`
       <td>${i+1}</td>
       <td>${d.kecamatan}</td>
@@ -240,80 +328,55 @@ function applyFilter(kec){
       <td>${d.rt_non_pln}</td>
       <td>${d.jumlah}</td>
       <td>${(+d.rasio_pln).toFixed(2)}</td>`;
-    document.querySelector('#tbl tbody').appendChild(tr);
+    tr.onclick=()=>show(d);
+    document.querySelector("#tbl tbody").appendChild(tr);
   });
 
-  if(bounds.length){
-    map.fitBounds(bounds,{maxZoom:9});
-    if(!zoomLocked){
-      map.once('zoomend',()=>map.dragging.enable());
-      map.dragging.disable();
-      zoomLocked=true;
-    }
-  }
+  if(bounds.length) map.fitBounds(bounds,{maxZoom:9});
 }
 
-/* ===== SELECT ===== */
-function select(id){
-  selected=data.find(x=>x.id_desa===id);
-  document.querySelectorAll('tr').forEach(r=>r.classList.remove('active'));
-  document.getElementById('row_'+id)?.classList.add('active');
-
-  map.setView([+selected.latitude,+selected.longitude],10);
-
-  judul.innerText=selected.nama_wilayah;
-  info.innerHTML=`
-    Kecamatan : <b>${selected.kecamatan}</b><br>
-    RT PLN : <b>${selected.rt_pln}</b><br>
-    RT Non PLN : <b>${selected.rt_non_pln}</b><br>
-    Jumlah : <b>${selected.jumlah}</b><br>
-    Rasio : <b>${(+selected.rasio_pln).toFixed(2)}%</b>
-  `;
+/* ================= PANEL ================= */
+function show(d){
+  selected=d;
+  pTitle.innerText=d.nama_wilayah;
+  pKec.innerText=d.kecamatan;
+  pPln.innerText=d.rt_pln;
+  pNon.innerText=d.rt_non_pln;
+  pJml.innerText=d.jumlah;
+  pRasio.innerText=(+d.rasio_pln).toFixed(2)+"%";
+  pKet.innerText=d.ket||"-";
+  panel.style.display="block";
 }
 
-/* ===== EDIT ===== */
-function openEdit(){
-  if(!selected) return alert("Pilih desa terlebih dahulu");
-  let pin=prompt("Masukkan PIN");
-  fetch(API,{method:'POST',body:JSON.stringify({action:'checkPin',pin})})
-  .then(r=>r.json())
-  .then(j=>{
-    if(j.status==='ok'){
-      view.style.display='none';
-      edit.style.display='block';
-      e_kecamatan.value=selected.kecamatan;
-      e_desa.value=selected.nama_wilayah;
-      rt_pln.value=selected.rt_pln;
-      rt_non_pln.value=selected.rt_non_pln;
-      e_jumlah.value=selected.jumlah;
-      e_rasio.value=(+selected.rasio_pln).toFixed(2);
-      window._pin=pin;
-    }else alert("PIN salah");
-  });
-}
-
-function cancelEdit(){
-  edit.style.display='none';
-  view.style.display='block';
-}
-
-function save(){
-  fetch(API,{
-    method:'POST',
-    body:JSON.stringify({
-      action:'updateDesa',
-      id_desa:selected.id_desa,
-      rt_pln:+rt_pln.value,
-      rt_non_pln:+rt_non_pln.value,
-      pin:window._pin
-    })
+/* ================= EDIT ================= */
+function editData(){
+  if(!selected) return;
+  const pin=prompt("Masukkan PIN");
+  fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({action:"checkPin",pin})
   })
   .then(r=>r.json())
   .then(j=>{
-    if(j.status==='ok') location.reload();
-    else alert(j.message);
+    if(j.status!=="ok") return alert("PIN salah");
+
+    const pln=prompt("RT PLN",selected.rt_pln);
+    const non=prompt("RT Non PLN",selected.rt_non_pln);
+    if(pln===null||non===null) return;
+
+    fetch(API_URL,{
+      method:"POST",
+      body:JSON.stringify({
+        action:"updateDesa",
+        id_desa:selected.id_desa,
+        rt_pln:+pln,
+        rt_non_pln:+non,
+        pin
+      })
+    }).then(()=>location.reload());
   });
 }
 </script>
+
 </body>
 </html>
