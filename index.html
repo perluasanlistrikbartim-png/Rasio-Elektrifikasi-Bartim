@@ -40,7 +40,6 @@ header::after{
   );
   animation:kilat 6s infinite;
 }
-
 @keyframes kilat{
   0%,85%{left:-120%}
   100%{left:120%}
@@ -53,7 +52,6 @@ header::after{
   align-items:center;
   justify-content:space-between;
 }
-
 .logo{height:52px}
 
 .title{
@@ -100,53 +98,90 @@ select{
   animation:mapFlash 8s infinite;
   pointer-events:none;
 }
-
 @keyframes mapFlash{
   0%,70%{opacity:0}
   75%{opacity:1}
   100%{opacity:0}
 }
 
-/* ================= TABLE ================= */
+/* ================= TABLE (NEON BLUE FINAL) ================= */
 .box-table{
   margin-top:18px;
-  background:#071427;
-  border-radius:16px;
-  padding:12px;
+  background:linear-gradient(180deg,#071a33,#050f22);
+  border-radius:18px;
+  padding:14px;
+  box-shadow:
+    0 0 0 1px rgba(0,180,255,.25),
+    0 0 25px rgba(0,120,255,.15);
 }
 
 .table-title{
   font-weight:700;
-  color:#ffe08a;
-  margin-bottom:10px;
+  font-size:15px;
+  color:#9ecbff;
+  margin-bottom:12px;
+  letter-spacing:.4px;
+  text-shadow:0 0 8px rgba(0,180,255,.45);
 }
 
 .table-scroll{
   max-height:45vh;
-  overflow:auto;
-  border-radius:10px;
+  overflow-y:auto;
+  overflow-x:auto;
+  border-radius:14px;
+  background:rgba(0,0,0,.15);
+  box-shadow:inset 0 0 18px rgba(0,0,0,.6);
 }
 
 table{
   width:100%;
-  border-collapse:collapse;
+  border-collapse:separate;
+  border-spacing:0;
   font-size:13px;
-}
-
-th,td{
-  padding:8px 10px;
-  border-bottom:1px solid rgba(255,255,255,.08);
+  color:#e0f7ff;
 }
 
 th{
   position:sticky;
   top:0;
-  background:#0b2442;
-  color:#9ecbff;
+  padding:10px 12px;
+  background:linear-gradient(180deg,#0b2442,#081a33);
+  color:#7dd3fc;
+  font-weight:700;
+  text-align:left;
+  border-bottom:1px solid rgba(0,180,255,.65);
+  border-right:1px solid rgba(0,180,255,.45);
+  z-index:2;
 }
 
-tr:hover{background:#12325c}
-tr.active{background:#1dd1a133}
+td{
+  padding:9px 12px;
+  border-bottom:1px solid rgba(0,180,255,.28);
+  border-right:1px solid rgba(0,180,255,.18);
+  white-space:nowrap;
+}
+
+th:last-child,
+td:last-child{border-right:none}
+
+tbody tr:hover td{
+  background:linear-gradient(
+    90deg,
+    rgba(0,120,255,.12),
+    rgba(0,60,180,.08)
+  );
+}
+
+tr.active td{
+  background:rgba(0,180,255,.22);
+  box-shadow:
+    inset 0 0 14px rgba(0,180,255,.45),
+    inset 0 0 0 1px rgba(0,180,255,.35);
+}
+
+tbody tr:nth-child(even) td{
+  background:rgba(255,255,255,.015);
+}
 
 /* ================= MARKER ================= */
 .label-desa{
@@ -158,53 +193,144 @@ tr.active{background:#1dd1a133}
   border:1px solid rgba(255,255,255,.25);
 }
 
-/* ================= PANEL FLOAT ================= */
+/* ================= PANEL FLOAT (VIEW + EDIT) ================= */
 #panel{
   position:fixed;
   top:110px;
   right:20px;
-  width:320px;
+  width:340px;
   background:linear-gradient(180deg,#071a33,#050f22);
-  border-radius:18px;
-  padding:14px;
-  box-shadow:0 12px 35px rgba(0,0,0,.85);
+  border-radius:20px;
+  padding:16px;
+  box-shadow:
+    0 0 0 1px rgba(0,180,255,.25),
+    0 20px 45px rgba(0,0,0,.85);
   display:none;
   z-index:999;
-  animation:slideIn .25s ease;
+  animation:panelIn .25s ease;
+  max-height:75vh;
+  overflow-y:auto;
 }
 
-@keyframes slideIn{
+@keyframes panelIn{
   from{transform:translateX(30px);opacity:0}
   to{transform:translateX(0);opacity:1}
 }
 
+/* PANEL HEADER */
+.panel-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+}
+
 .panel-title{
-  font-weight:700;
-  color:#ffe08a;
-  margin-bottom:8px;
+  font-weight:800;
+  font-size:14px;
+  color:#9ecbff;
+  letter-spacing:.4px;
+  text-shadow:0 0 8px rgba(0,180,255,.45);
 }
 
-.info-block{
-  margin-bottom:6px;
-  padding-bottom:6px;
-  border-bottom:1px dashed rgba(255,255,255,.1);
-}
-
-.label{font-size:11px;color:#9ecbff}
-.value{font-weight:600;font-size:14px}
-
-/* ================= BUTTON ================= */
-button{
-  width:100%;
-  padding:10px;
-  margin-top:10px;
+.panel-close{
+  background:none;
   border:none;
-  border-radius:10px;
-  background:#f4b400;
-  font-weight:700;
+  color:#7dd3fc;
+  font-size:22px;
   cursor:pointer;
 }
+
+/* INFO */
+.info-block{
+  margin-bottom:10px;
+  padding-bottom:8px;
+  border-bottom:1px dashed rgba(0,180,255,.18);
+}
+
+.label{
+  font-size:11px;
+  color:#7dd3fc;
+  letter-spacing:.5px;
+  margin-bottom:2px;
+}
+
+.value{
+  font-weight:700;
+  font-size:14px;
+  color:#ffffff;
+}
+
+.value-date{
+  font-size:12px;
+  color:#9ecbff;
+  font-style:italic;
+}
+
+/* ================= EDIT MODE ================= */
+.view-only{display:block}
+.edit-only{display:none}
+.edit-mode .view-only{display:none}
+.edit-mode .edit-only{display:block}
+
+.edit-field{
+  margin-bottom:12px;
+}
+
+.edit-field label{
+  font-size:11px;
+  color:#7dd3fc;
+  letter-spacing:.4px;
+  margin-bottom:4px;
+  display:block;
+}
+
+.edit-field input{
+  width:100%;
+  padding:10px 12px;
+  background:#0b2442;
+  color:#ffffff;
+  font-size:15px;
+  font-weight:700;
+  border:1px solid rgba(0,180,255,.35);
+  border-radius:10px;
+}
+
+.edit-field input:focus{
+  outline:none;
+  border-color:#00b4ff;
+  box-shadow:0 0 0 1px rgba(0,180,255,.45);
+}
+
+/* ================= BUTTON ================= */
+.btn-edit,
+.btn-save,
+.btn-cancel{
+  width:100%;
+  padding:11px;
+  margin-top:10px;
+  border:none;
+  border-radius:12px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.btn-edit{
+  background:linear-gradient(135deg,#00b4ff,#0072ff);
+  color:#001b2e;
+}
+
+.btn-save{
+  background:linear-gradient(135deg,#00ffb4,#00c897);
+  color:#00241a;
+}
+
+.btn-cancel{
+  background:linear-gradient(135deg,#334155,#1e293b);
+  color:#e0f7ff;
+}
 </style>
+
 </head>
 
 <body>
@@ -340,7 +466,7 @@ function render(){
       <td>${d.rt_pln}</td>
       <td>${d.rt_non_pln}</td>
       <td>${d.jumlah}</td>
-      <td>${(+d.rasio_pln).toFixed(2)}</td>`;
+     <td>${d.rasio_pln}%</td>
     tr.onclick=()=>show(d);
     document.querySelector("#tbl tbody").appendChild(tr);
   });
@@ -359,7 +485,7 @@ function show(d){
   pPln.innerText=d.rt_pln;
   pNon.innerText=d.rt_non_pln;
   pJml.innerText=d.jumlah;
-  pRasio.innerText=(+d.rasio_pln).toFixed(2)+"%";
+  pRasio.innerText = d.rasio_pln + "%";
   pKet.innerText=d.ket||"-";
   panel.style.display="block";
 }
