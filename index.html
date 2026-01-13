@@ -268,8 +268,21 @@ button{
 const API_URL = "https://script.google.com/macros/s/AKfycbxa-soCZiiqGB86ND1s5tKaIBwHSz0OGmv9OgJoDXYLKS1DvgcGy6e1sInZI3JD0oSm/exec";
 
 /* ================= MAP ================= */
-const map = L.map("map",{minZoom:7,maxZoom:10}).setView([-2.1,115.1],8);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+const map = L.map("map", {
+  minZoom: 7,
+  maxZoom: 20,   // ⬅️ INI KUNCI AKHIR
+  zoomSnap: 0.25 // ⬅️ biar halus (OPSIONAL tapi mantap)
+}).setView([-2.1,115.1],8);
+
+L.tileLayer(
+  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  {
+    maxZoom: 20,
+    maxNativeZoom: 19,
+    detectRetina: true
+  }
+).addTo(map);
+
 const layer = L.layerGroup().addTo(map);
 
 /* ================= STATE ================= */
@@ -332,7 +345,10 @@ function render(){
     document.querySelector("#tbl tbody").appendChild(tr);
   });
 
-  if(bounds.length) map.fitBounds(bounds,{maxZoom:9});
+  if(bounds.length){
+  map.fitBounds(bounds,{padding:[40,40]});
+}
+
 }
 
 /* ================= PANEL ================= */
