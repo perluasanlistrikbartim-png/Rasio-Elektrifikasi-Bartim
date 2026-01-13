@@ -436,45 +436,52 @@ filterKec.onchange=()=>render();
 /* ================= RENDER ================= */
 function render(){
   layer.clearLayers();
-  document.querySelector("#tbl tbody").innerHTML="";
-  panel.style.display="none";
+  document.querySelector("#tbl tbody").innerHTML = "";
+  panel.style.display = "none";
 
   if(!filterKec.value) return;
 
-  const list = filterKec.value==="ALL"
+  const list = filterKec.value === "ALL"
     ? data
-    : data.filter(d=>d.kecamatan===filterKec.value);
+    : data.filter(d => d.kecamatan === filterKec.value);
 
-  let bounds=[];
+  let bounds = [];
 
   list.forEach((d,i)=>{
-    const lat=+d.latitude, lng=+d.longitude;
-    if(!lat||!lng) return;
+    const lat = +d.latitude;
+    const lng = +d.longitude;
+    if(!lat || !lng) return;
 
-    const m=L.marker([lat,lng]).addTo(layer)
-      .bindTooltip(d.nama_wilayah,{permanent:true,className:"label-desa"});
+    const m = L.marker([lat, lng]).addTo(layer)
+      .bindTooltip(d.nama_wilayah, {
+        permanent:true,
+        className:"label-desa"
+      });
 
-    m.on("click",()=>show(d));
+    m.on("click", () => show(d));
 
-    bounds.push([lat,lng]);
+    bounds.push([lat, lng]);
 
-    const tr=document.createElement("tr");
-    tr.innerHTML=`
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
       <td>${i+1}</td>
       <td>${d.kecamatan}</td>
       <td>${d.nama_wilayah}</td>
       <td>${d.rt_pln}</td>
       <td>${d.rt_non_pln}</td>
       <td>${d.jumlah}</td>
-     <td>${d.rasio_pln}%</td>
-    tr.onclick=()=>show(d);
+      <td>${d.rasio_pln}%</td>
+    `;
+
+    tr.onclick = () => show(d);
+
     document.querySelector("#tbl tbody").appendChild(tr);
   });
 
   if(bounds.length){
-  map.fitBounds(bounds,{padding:[40,40]});
-}
-
+    map.fitBounds(bounds, { padding:[40,40] });
+  }
 }
 
 /* ================= PANEL ================= */
