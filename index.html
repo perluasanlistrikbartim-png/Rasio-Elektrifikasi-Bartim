@@ -143,7 +143,7 @@ th{
   position:fixed;
   top:110px;
   right:20px;
-  width:340px;
+  width:360px;
   background:#071a33;
   border-radius:18px;
   padding:14px;
@@ -188,7 +188,6 @@ button{
 
   <div id="map"></div>
 
-  <!-- SUMMARY -->
   <div id="summary" class="summary-box" style="display:none">
     <div class="summary-title" id="summaryTitle"></div>
     <div class="summary-value" id="summaryValue"></div>
@@ -197,6 +196,8 @@ button{
 </div>
 
 <div class="container">
+
+  <!-- TABEL DESA -->
   <div class="box-table">
     <div class="table-title">📊 Data Rasio Elektrifikasi Desa</div>
     <div class="table-scroll">
@@ -205,11 +206,15 @@ button{
           <tr>
             <th>No</th>
             <th>Kecamatan</th>
-            <th>Desa</th>
+            <th>Desa/Kelurahan</th>
             <th>RT PLN</th>
             <th>RT Non PLN</th>
-            <th>Jumlah</th>
-            <th>Rasio (%)</th>
+            <th>RT Non Listrik</th>
+            <th>Jumlah RT</th>
+            <th>% PLN</th>
+            <th>% Non PLN</th>
+            <th>% Tidak Berlistrik</th>
+            <th>Updated</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -217,7 +222,7 @@ button{
     </div>
   </div>
 
-  <!-- REKAP PER KECAMATAN -->
+  <!-- REKAP KECAMATAN -->
   <div class="box-table" id="rekapBox" style="display:none">
     <div class="table-title">📌 Rekap Rasio Elektrifikasi per Kecamatan</div>
     <div class="table-scroll">
@@ -226,23 +231,36 @@ button{
           <tr>
             <th>Kecamatan</th>
             <th>RT PLN</th>
+            <th>RT Non PLN</th>
+            <th>RT Non Listrik</th>
             <th>Jumlah RT</th>
-            <th>Rasio (%)</th>
+            <th>% PLN</th>
+            <th>% Non PLN</th>
+            <th>% Tidak Berlistrik</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
     </div>
   </div>
+
 </div>
 
+<!-- PANEL DETAIL -->
 <div id="panel">
-  <div class="info-block"><div class="label">Desa</div><div class="value" id="pTitle"></div></div>
   <div class="info-block"><div class="label">Kecamatan</div><div class="value" id="pKec"></div></div>
+  <div class="info-block"><div class="label">Desa/Kelurahan</div><div class="value" id="pTitle"></div></div>
+
   <div class="info-block"><div class="label">RT PLN</div><div class="value" id="pPln"></div></div>
   <div class="info-block"><div class="label">RT Non PLN</div><div class="value" id="pNon"></div></div>
-  <div class="info-block"><div class="label">Jumlah</div><div class="value" id="pJml"></div></div>
-  <div class="info-block"><div class="label">Rasio</div><div class="value" id="pRasio"></div></div>
+  <div class="info-block"><div class="label">RT Non Listrik</div><div class="value" id="pNonListrik"></div></div>
+
+  <div class="info-block"><div class="label">Jumlah RT</div><div class="value" id="pJml"></div></div>
+  <div class="info-block"><div class="label">% PLN</div><div class="value" id="pPlnPersen"></div></div>
+  <div class="info-block"><div class="label">% Non PLN</div><div class="value" id="pNonPlnPersen"></div></div>
+  <div class="info-block"><div class="label">% Tidak Berlistrik</div><div class="value" id="pTidakPersen"></div></div>
+  <div class="info-block"><div class="label">Updated</div><div class="value" id="pUpdated"></div></div>
+
   <button onclick="editData()">✏️ Edit Data</button>
 </div>
 
@@ -279,16 +297,22 @@ function render(){
 
   const list=filterKec.value==="ALL"?data:data.filter(d=>d.kecamatan===filterKec.value);
 
-  let sumPln=0,sumTotal=0;
+  let sumPln=0,sumNon=0,sumTidak=0,sumTotal=0;
   let rekap={};
 
   list.forEach((d,i)=>{
-    sumPln+=Number(d.rt_pln)||0;
-    sumTotal+=Number(d.jumlah)||0;
+    sumPln+=+d.rt_pln||0;
+    sumNon+=+d.rt_non_pln||0;
+    sumTidak+=+d.rt_non_listrik||0;
+    sumTotal+=+d.jumlah||0;
 
-    if(!rekap[d.kecamatan]) rekap[d.kecamatan]={pln:0,total:0};
-    rekap[d.kecamatan].pln+=Number(d.rt_pln)||0;
-    rekap[d.kecamatan].total+=Number(d.jumlah)||0;
+    if(!rekap[d.kecamatan])
+      rekap[d.kecamatan]={pln:0,non:0,tidak:0,total:0};
+
+    rekap[d.kecamatan].pln+=+d.rt_pln||0;
+    rekap[d.kecamatan].non+=+d.rt_non_pln||0;
+    rekap[d.kecamatan].tidak+=+d.rt_non_listrik||0;
+    rekap[d.kecamatan].total+=+d.jumlah||0;
 
     const tr=document.createElement("tr");
     tr.innerHTML=`
@@ -297,45 +321,68 @@ function render(){
       <td>${d.nama_wilayah}</td>
       <td>${d.rt_pln}</td>
       <td>${d.rt_non_pln}</td>
+      <td>${d.rt_non_listrik}</td>
       <td>${d.jumlah}</td>
-      <td>${d.rasio_pln}%</td>`;
+      <td>${d.persen_pln}%</td>
+      <td>${d.persen_non_pln}%</td>
+      <td>${d.persen_tidak_berlistrik}%</td>
+      <td>${d.updated_at || "2025"}</td>`;
     tr.onclick=()=>show(d);
     tbl.querySelector("tbody").appendChild(tr);
 
-    if(d.latitude&&d.longitude){
+    if(d.latitude && d.longitude){
       L.marker([d.latitude,d.longitude]).addTo(layer).on("click",()=>show(d));
     }
   });
 
-  const rasio=(sumPln/sumTotal*100).toFixed(2);
+  const rasioKab=(sumPln/sumTotal*100).toFixed(2);
 
   summary.style.display="block";
   if(filterKec.value==="ALL"){
-    summaryTitle.innerText="Rasio Elektrifikasi Kabupaten Barito Timur";
+    summaryTitle.innerText="Rasio Elektrifikasi PLN Kabupaten Barito Timur";
     rekapBox.style.display="block";
+
     for(let k in rekap){
-      const r=(rekap[k].pln/rekap[k].total*100).toFixed(2);
+      const rPln=(rekap[k].pln/rekap[k].total*100).toFixed(2);
+      const rNon=(rekap[k].non/rekap[k].total*100).toFixed(2);
+      const rTidak=(rekap[k].tidak/rekap[k].total*100).toFixed(2);
+
       rekapTbl.querySelector("tbody").innerHTML+=`
-        <tr><td>${k}</td><td>${rekap[k].pln}</td><td>${rekap[k].total}</td><td>${r}%</td></tr>`;
+        <tr>
+          <td>${k}</td>
+          <td>${rekap[k].pln}</td>
+          <td>${rekap[k].non}</td>
+          <td>${rekap[k].tidak}</td>
+          <td>${rekap[k].total}</td>
+          <td>${rPln}%</td>
+          <td>${rNon}%</td>
+          <td>${rTidak}%</td>
+        </tr>`;
     }
   }else{
-    summaryTitle.innerText="Rasio Elektrifikasi Kecamatan "+filterKec.value;
+    summaryTitle.innerText="Rasio Elektrifikasi PLN Kecamatan "+filterKec.value;
     rekapBox.style.display="none";
   }
-  summaryValue.innerText=rasio+"%";
+
+  summaryValue.innerText=rasioKab+"%";
   summarySub.innerText=`RT PLN: ${sumPln} | Total RT: ${sumTotal}`;
 }
 
 function show(d){
   selected=d;
-  pTitle.innerText=d.nama_wilayah;
   pKec.innerText=d.kecamatan;
+  pTitle.innerText=d.nama_wilayah;
   pPln.innerText=d.rt_pln;
   pNon.innerText=d.rt_non_pln;
+  pNonListrik.innerText=d.rt_non_listrik;
   pJml.innerText=d.jumlah;
-  pRasio.innerText=d.rasio_pln+"%";
+  pPlnPersen.innerText=d.persen_pln+"%";
+  pNonPlnPersen.innerText=d.persen_non_pln+"%";
+  pTidakPersen.innerText=d.persen_tidak_berlistrik+"%";
+  pUpdated.innerText=d.updated_at || "2025";
   panel.style.display="block";
 }
 </script>
+
 </body>
 </html>
