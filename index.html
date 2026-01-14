@@ -323,9 +323,10 @@ function render(){
       <td>${d.rt_non_pln}</td>
       <td>${d.rt_non_listrik}</td>
       <td>${d.jumlah}</td>
-      <td>${d.persen_pln}%</td>
-      <td>${d.persen_non_pln}%</td>
-      <td>${d.persen_tidak_berlistrik}%</td>
+     <td>${fmtPercent(d.persen_pln)}</td>
+<td>${fmtPercent(d.persen_non_pln)}</td>
+<td>${fmtPercent(d.persen_tidak_berlistrik)}</td>
+
       <td>${d.updated_at || "2025"}</td>`;
     tr.onclick=()=>show(d);
     tbl.querySelector("tbody").appendChild(tr);
@@ -355,8 +356,9 @@ function render(){
           <td>${rekap[k].tidak}</td>
           <td>${rekap[k].total}</td>
           <td>${rPln}%</td>
-          <td>${rNon}%</td>
-          <td>${rTidak}%</td>
+<td>${rNon}%</td>
+<td>${rTidak}%</td>
+
         </tr>`;
     }
   }else{
@@ -376,12 +378,15 @@ function show(d){
   pNon.innerText=d.rt_non_pln;
   pNonListrik.innerText=d.rt_non_listrik;
   pJml.innerText=d.jumlah;
-  pPlnPersen.innerText=d.persen_pln+"%";
-  pNonPlnPersen.innerText=d.persen_non_pln+"%";
-  pTidakPersen.innerText=d.persen_tidak_berlistrik+"%";
+  pPlnPersen.innerText = d.persen_pln + "%";
   pUpdated.innerText=d.updated_at || "2025";
   panel.style.display="block";
 }
+  function fmtPercent(v){
+  if(v === "" || v === null || isNaN(v)) return "0.00%";
+  return (Number(v) * 100).toFixed(2) + "%";
+}
+
 </script>
 
 </body>
