@@ -718,8 +718,12 @@ panel.addEventListener("touchmove",e=>{
     closePanel();
   }
 },{passive:true});
-  document.getElementById("tahunFooter").innerText =
-  new Date().getFullYear();
+  
+  const th = document.getElementById("tahunFooter");
+if(th){
+  th.innerText = new Date().getFullYear();
+}
+
 
 </script>
 
