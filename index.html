@@ -429,64 +429,88 @@ th{
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-const API_URL="https://script.google.com/macros/s/AKfycbxa-soCZiiqGB86ND1s5tKaIBwHSz0OGmv9OgJoDXYLKS1DvgcGy6e1sInZI3JD0oSm/exec";
+const API_URL =
+"https://script.google.com/macros/s/AKfycbxa-soCZiiqGB86ND1s5tKaIBwHSz0OGmv9OgJoDXYLKS1DvgcGy6e1sInZI3JD0oSm/exec";
 
 /* ================= MAP ================= */
-const map=L.map("map",{maxZoom:20}).setView([-2.1,115.1],8);
+const map = L.map("map",{maxZoom:20}).setView([-2.1,115.1],8);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:20}).addTo(map);
-const layer=L.layerGroup().addTo(map);
+const layer = L.layerGroup().addTo(map);
+
+/* ================= DOM ================= */
+const filterKec   = document.getElementById("filterKec");
+const tbl         = document.getElementById("tbl");
+const rekapTbl    = document.getElementById("rekapTbl");
+const rekapBox    = document.getElementById("rekapBox");
+const summary     = document.getElementById("summary");
+const summaryTitle= document.getElementById("summaryTitle");
+const summaryValue= document.getElementById("summaryValue");
+const summarySub  = document.getElementById("summarySub");
+const panel       = document.getElementById("panel");
+
+/* panel fields */
+const pKec          = document.getElementById("pKec");
+const pTitle        = document.getElementById("pTitle");
+const pPln          = document.getElementById("pPln");
+const pNon          = document.getElementById("pNon");
+const pNonListrik   = document.getElementById("pNonListrik");
+const pJml          = document.getElementById("pJml");
+const pPlnPersen    = document.getElementById("pPlnPersen");
+const pNonPlnPersen = document.getElementById("pNonPlnPersen");
+const pTidakPersen  = document.getElementById("pTidakPersen");
+const pUpdated      = document.getElementById("pUpdated");
 
 /* ================= DATA ================= */
-let data=[], selected=null;
+let data = [];
+let selected = null;
 
 /* ================= LOAD DATA ================= */
-fetch(API_URL+"?action=getDesa")
-.then(r=>r.json())
-.then(j=>{
-  data=j.data;
+fetch(API_URL + "?action=getDesa")
+.then(r => r.json())
+.then(j => {
+  data = j.data || [];
   [...new Set(data.map(d=>d.kecamatan))].forEach(k=>{
-    let o=document.createElement("option");
-    o.value=k;
-    o.textContent=k;
+    const o = document.createElement("option");
+    o.value = k;
+    o.textContent = k;
     filterKec.appendChild(o);
   });
 });
 
-filterKec.onchange=render;
+filterKec.onchange = render;
 
 /* ================= RENDER ================= */
 function render(){
   layer.clearLayers();
-  const bounds = [];
-
-  tbl.querySelector("tbody").innerHTML="";
-  rekapTbl.querySelector("tbody").innerHTML="";
-
-
+  tbl.querySelector("tbody").innerHTML = "";
+  rekapTbl.querySelector("tbody").innerHTML = "";
+  panel.style.display = "none";
 
   if(!filterKec.value) return;
 
+  const bounds = [];
   const list = filterKec.value==="ALL"
     ? data
     : data.filter(d=>d.kecamatan===filterKec.value);
 
-  let sumPln=0, sumNon=0, sumTidak=0, sumTotal=0;
+  let sumPln=0,sumNon=0,sumTidak=0,sumTotal=0;
   let rekap={};
 
   list.forEach((d,i)=>{
-    sumPln += +d.rt_pln || 0;
-    sumNon += +d.rt_non_pln || 0;
+    sumPln   += +d.rt_pln || 0;
+    sumNon   += +d.rt_non_pln || 0;
     sumTidak += +d.rt_non_listrik || 0;
     sumTotal += +d.jumlah || 0;
 
     if(!rekap[d.kecamatan])
       rekap[d.kecamatan]={pln:0,non:0,tidak:0,total:0};
 
-    rekap[d.kecamatan].pln += +d.rt_pln || 0;
-    rekap[d.kecamatan].non += +d.rt_non_pln || 0;
+    rekap[d.kecamatan].pln   += +d.rt_pln || 0;
+    rekap[d.kecamatan].non   += +d.rt_non_pln || 0;
     rekap[d.kecamatan].tidak += +d.rt_non_listrik || 0;
     rekap[d.kecamatan].total += +d.jumlah || 0;
 
+    /* === TABLE === */
     const tr=document.createElement("tr");
     tr.innerHTML=`
       <td>${i+1}</td>
@@ -499,71 +523,60 @@ function render(){
       <td>${fmtPercent(d.persen_pln)}</td>
       <td>${fmtPercent(d.persen_non_pln)}</td>
       <td>${fmtPercent(d.persen_tidak_berlistrik)}</td>
-      <td>${d.updated_at || "2025"}</td>
-    `;
+      <td>${d.updated_at || "2025"}</td>`;
     tr.onclick=()=>show(d);
     tbl.querySelector("tbody").appendChild(tr);
 
+    /* === MARKER === */
     if(d.latitude && d.longitude){
-  const latlng = [
-    Number(d.latitude.toString().replace(",", ".")),
-    Number(d.longitude.toString().replace(",", "."))
-  ];
+      const latlng=[
+        Number(String(d.latitude).replace(",", ".")),
+        Number(String(d.longitude).replace(",", "."))
+      ];
 
-  const icon = L.divIcon({
-    className: "",
-    html: `
-      <div class="marker-bartim">
-        <div class="marker-label">${d.nama_wilayah}</div>
-        <div class="marker-kilat">⚡</div>
-        <img src="bartim.png" alt="Bartim">
-      </div>
-    `,
-    iconSize: [40, 60],
-    iconAnchor: [20, 60]
+      const icon=L.divIcon({
+        className:"",
+        html:`
+          <div class="marker-bartim">
+            <div class="marker-label">${d.nama_wilayah}</div>
+            <div class="marker-kilat">⚡</div>
+            <img src="bartim.png">
+          </div>`,
+        iconSize:[40,60],
+        iconAnchor:[20,60]
+      });
+
+      L.marker(latlng,{icon})
+        .addTo(layer)
+        .on("click",()=>show(d));
+
+      bounds.push(latlng);
+    }
   });
 
-  L.marker(latlng, { icon })
-    .addTo(layer)
-    .on("click",()=>show(d));
-
-  bounds.push(latlng);
-}
-
-  });
-
-  /* ===== FIT MAP TO MARKER ===== */
-  if(bounds.length > 0){
-    map.fitBounds(bounds,{
-      padding:[40,40],
-      maxZoom:13
-    });
+  if(bounds.length){
+    map.fitBounds(bounds,{padding:[40,40],maxZoom:13});
   }
 
-  /* ===== SUMMARY ===== */
-  const rasioKab = sumTotal ? (sumPln/sumTotal*100).toFixed(2) : "0.00";
+  /* === SUMMARY === */
   summary.style.display="block";
+  const rasioKab = sumTotal ? (sumPln/sumTotal*100).toFixed(2) : "0.00";
 
   if(filterKec.value==="ALL"){
     summaryTitle.innerText="Rasio Elektrifikasi PLN Kabupaten Barito Timur";
     rekapBox.style.display="block";
-    rekapTbl.querySelector("tbody").innerHTML="";
-
     for(let k in rekap){
-      const rPln=(rekap[k].pln/rekap[k].total*100).toFixed(2);
-      const rNon=(rekap[k].non/rekap[k].total*100).toFixed(2);
-      const rTidak=(rekap[k].tidak/rekap[k].total*100).toFixed(2);
-
+      const r=rekap[k];
       rekapTbl.querySelector("tbody").innerHTML+=`
         <tr>
           <td>${k}</td>
-          <td>${rekap[k].pln}</td>
-          <td>${rekap[k].non}</td>
-          <td>${rekap[k].tidak}</td>
-          <td>${rekap[k].total}</td>
-          <td>${rPln}%</td>
-          <td>${rNon}%</td>
-          <td>${rTidak}%</td>
+          <td>${r.pln}</td>
+          <td>${r.non}</td>
+          <td>${r.tidak}</td>
+          <td>${r.total}</td>
+          <td>${(r.pln/r.total*100).toFixed(2)}%</td>
+          <td>${(r.non/r.total*100).toFixed(2)}%</td>
+          <td>${(r.tidak/r.total*100).toFixed(2)}%</td>
         </tr>`;
     }
   }else{
@@ -572,18 +585,15 @@ function render(){
   }
 
   summaryValue.innerText = rasioKab+"%";
-  summarySub.innerText = `RT PLN: ${sumPln} | Total RT: ${sumTotal}`;
+  summarySub.innerText   = `RT PLN: ${sumPln} | Total RT: ${sumTotal}`;
 }
-const pNonPlnPersen = document.getElementById("pNonPlnPersen");
-const pTidakPersen  = document.getElementById("pTidakPersen");
 
 /* ================= PANEL VIEW ================= */
 function show(d){
-  selected = d;
+  selected=d;
 
-  pKec.innerText   = d.kecamatan;
-  pTitle.innerText = d.nama_wilayah;
-
+  pKec.innerText        = d.kecamatan;
+  pTitle.innerText      = d.nama_wilayah;
   pPln.innerText        = d.rt_pln;
   pNon.innerText        = d.rt_non_pln;
   pNonListrik.innerText = d.rt_non_listrik;
@@ -592,85 +602,41 @@ function show(d){
   pPlnPersen.innerText    = fmtPercent(d.persen_pln);
   pNonPlnPersen.innerText = fmtPercent(d.persen_non_pln);
   pTidakPersen.innerText  = fmtPercent(d.persen_tidak_berlistrik);
+  pUpdated.innerText      = d.updated_at || "2025";
 
-  pUpdated.innerText = d.updated_at || "2025";
-
-  panel.style.display = "block";
+  panel.style.display="block";
 }
-
-
 
 /* ================= UTIL ================= */
 function fmtPercent(v){
-  if(v===null || v==="") return "0.00%";
+  if(v===null||v==="") return "0.00%";
   if(String(v).includes("%")) return v;
   return (Number(v)*100).toFixed(2)+"%";
 }
 
-/* ================= EDIT + PIN ================= */
+/* ================= EDIT (SIAP, BELUM SIMPAN) ================= */
 function editData(){
-  if(!selected){
-    alert("Pilih desa terlebih dahulu");
-    return;
-  }
-
-  const pin = prompt(
-    "Masukkan PIN Desa/Kelurahan:\n"+selected.nama_wilayah
-  );
+  if(!selected){ alert("Pilih desa terlebih dahulu"); return; }
+  const pin=prompt("Masukkan PIN Desa/Kelurahan:\n"+selected.nama_wilayah);
   if(!pin) return;
-
-  fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"checkPin",
-      id_desa:selected.id_desa,
-      pin:pin
-    })
-  })
-  .then(r=>r.json())
-  .then(res=>{
-    if(res.status!=="ok"){
-      alert("PIN salah atau tidak aktif");
-      return;
-    }
-    enableEditMode(pin);
-  });
+  // saveEdit nanti
 }
 
-function enableEditMode(pin){
-  panel.dataset.pin = pin;
-
-  pPln.innerHTML = `<input id="ePln" type="number" value="${selected.rt_pln}">`;
-  pNon.innerHTML = `<input id="eNon" type="number" value="${selected.rt_non_pln}">`;
-  pNonListrik.innerHTML = `<input id="eNonListrik" type="number" value="${selected.rt_non_listrik||0}">`;
-
-  panel.querySelector("button").outerHTML = `
-    <button onclick="saveEdit()">💾 Simpan</button>
-    <button onclick="cancelEdit()">❌ Batal</button>
-  `;
-}
-
-function cancelEdit(){
-  show(selected);
-}
-  function closePanel(){
-  panel.style.display = "none";
-}
-
-}
+/* ================= PANEL CLOSE + SWIPE ================= */
+function closePanel(){ panel.style.display="none"; }
 
 let startY=0;
 panel.addEventListener("touchstart",e=>{
   startY=e.touches[0].clientY;
 },{passive:true});
+
 panel.addEventListener("touchmove",e=>{
   if(e.touches[0].clientY - startY > 80){
     closePanel();
   }
 },{passive:true});
-
-
 </script>
+
 
 
 </body>
