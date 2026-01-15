@@ -166,6 +166,45 @@ button{
   font-weight:700;
   cursor:pointer;
 }
+  /* ================= CUSTOM MARKER ================= */
+.marker-bartim{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.marker-bartim img{
+  width: 34px;        /* logo agak besar tapi elegan */
+  height: 34px;
+  filter: drop-shadow(0 0 6px rgba(0,180,255,.6));
+}
+
+.marker-label{
+  margin-bottom: 6px;
+  padding: 4px 10px;
+  background: rgba(5,15,34,.85);
+  color: #e0f7ff;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 10px;
+  white-space: nowrap;
+  box-shadow:
+    0 4px 10px rgba(0,0,0,.6),
+    0 0 12px rgba(0,180,255,.35);
+}
+
+/* kilat penghubung */
+.marker-kilat{
+  font-size: 14px;
+  line-height: 14px;
+  margin-bottom: 2px;
+  color: #ffd700;
+  text-shadow:
+    0 0 6px rgba(255,215,0,.9),
+    0 0 12px rgba(255,215,0,.6);
+}
+
 </style>
 </head>
 
@@ -341,17 +380,31 @@ function render(){
     tbl.querySelector("tbody").appendChild(tr);
 
     if(d.latitude && d.longitude){
-      const latlng = [
-        Number(d.latitude.toString().replace(",", ".")),
-        Number(d.longitude.toString().replace(",", "."))
-      ];
+  const latlng = [
+    Number(d.latitude.toString().replace(",", ".")),
+    Number(d.longitude.toString().replace(",", "."))
+  ];
 
-      L.marker(latlng)
-        .addTo(layer)
-        .on("click",()=>show(d));
+  const icon = L.divIcon({
+    className: "",
+    html: `
+      <div class="marker-bartim">
+        <div class="marker-label">${d.nama_wilayah}</div>
+        <div class="marker-kilat">⚡</div>
+        <img src="bartim.png" alt="Bartim">
+      </div>
+    `,
+    iconSize: [40, 60],
+    iconAnchor: [20, 60]
+  });
 
-      bounds.push(latlng);
-    }
+  L.marker(latlng, { icon })
+    .addTo(layer)
+    .on("click",()=>show(d));
+
+  bounds.push(latlng);
+}
+
   });
 
   /* ===== FIT MAP TO MARKER ===== */
