@@ -538,8 +538,7 @@ const pNon          = document.getElementById("pNon");
 const pNonListrik   = document.getElementById("pNonListrik");
 const pJml          = document.getElementById("pJml");
 const pPlnPersen    = document.getElementById("pPlnPersen");
-const pNonPlnPersen = document.getElementById("pNonPlnPersen");
-const pTidakPersen  = document.getElementById("pTidakPersen");
+
 const pUpdated      = document.getElementById("pUpdated");
 
 /* ================= DATA ================= */
@@ -673,7 +672,8 @@ function render(){
 /* ================= PANEL VIEW ================= */
 function show(d){
   selected=d;
-
+const pNonPlnPersen = document.getElementById("pNonPlnPersen");
+const pTidakPersen  = document.getElementById("pTidakPersen");
   pKec.innerText        = d.kecamatan;
   pTitle.innerText      = d.nama_wilayah;
   pPln.innerText        = d.rt_pln;
