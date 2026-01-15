@@ -362,6 +362,11 @@ th{
     text-align:center;
   }
 }
+.view-only{ display:block }
+.edit-only{ display:none }
+
+#panel.edit-mode .view-only{ display:none }
+#panel.edit-mode .edit-only{ display:block }
 
 </style>
 </head>
@@ -446,68 +451,37 @@ th{
 <!-- PANEL DETAIL -->
 <div id="panel">
 
- <div class="panel-header">
-  <div class="panel-title">Detail Desa</div>
-  <button class="panel-close" onclick="closePanel()">✕</button>
-</div>
+  <div class="panel-header">
+    <div class="panel-title">Detail Desa</div>
+    <button class="panel-close" onclick="closePanel()">✕</button>
+  </div>
 
-  <div class="panel-body">
+  <!-- ================= VIEW MODE ================= -->
+  <div class="panel-body view-only">
 
-    <div class="info-block">
-      <div class="label">Kecamatan</div>
-      <div class="value" id="pKec"></div>
-    </div>
-
-    <div class="info-block">
-      <div class="label">Desa / Kelurahan</div>
-      <div class="value" id="pTitle"></div>
-    </div>
-
-    <div class="info-block">
-      <div class="label">RT PLN</div>
-      <div class="value" id="pPln"></div>
-    </div>
-
-    <div class="info-block">
-      <div class="label">RT Non PLN</div>
-      <div class="value" id="pNon"></div>
-    </div>
-
-    <div class="info-block">
-      <div class="label">RT Non Listrik</div>
-      <div class="value" id="pNonListrik"></div>
-    </div>
-
-    <div class="info-block">
-      <div class="label">Jumlah RT</div>
-      <div class="value" id="pJml"></div>
-    </div>
-
-    <div class="info-block">
-      <div class="label">% PLN</div>
-      <div class="value" id="pPlnPersen"></div>
-    </div>
-<div class="info-block">
-  <div class="label">% Non PLN</div>
-  <div class="value" id="pNonPlnPersen"></div>
-</div>
-
-<div class="info-block">
-  <div class="label">% Tidak Berlistrik</div>
-  <div class="value" id="pTidakPersen"></div>
-</div>
-
-    <div class="info-block">
-      <div class="label">Updated</div>
-      <div class="value" id="pUpdated"></div>
-    </div>
+    <div class="info-block"><div class="label">Kecamatan</div><div class="value" id="pKec"></div></div>
+    <div class="info-block"><div class="label">Desa / Kelurahan</div><div class="value" id="pTitle"></div></div>
+    <div class="info-block"><div class="label">RT PLN</div><div class="value" id="pPln"></div></div>
+    <div class="info-block"><div class="label">RT Non PLN</div><div class="value" id="pNon"></div></div>
+    <div class="info-block"><div class="label">RT Non Listrik</div><div class="value" id="pNonListrik"></div></div>
+    <div class="info-block"><div class="label">Jumlah RT</div><div class="value" id="pJml"></div></div>
+    <div class="info-block"><div class="label">% PLN</div><div class="value" id="pPlnPersen"></div></div>
+    <div class="info-block"><div class="label">% Non PLN</div><div class="value" id="pNonPlnPersen"></div></div>
+    <div class="info-block"><div class="label">% Tidak Berlistrik</div><div class="value" id="pTidakPersen"></div></div>
+    <div class="info-block"><div class="label">Updated</div><div class="value" id="pUpdated"></div></div>
 
     <button class="btn-action" onclick="editData()">✏️ Edit Data</button>
-
   </div>
-  <!-- ===== EDIT MODE (INI TAMBAHAN BARU) ===== -->
-  <div id="editBox" style="display:none;margin-top:14px">
 
+  <!-- ================= EDIT MODE ================= -->
+  <div class="panel-body edit-only">
+
+    <!-- READONLY (TEKS SAJA) -->
+    <div class="info-block"><div class="label">Kecamatan</div><div class="value" id="eKec"></div></div>
+    <div class="info-block"><div class="label">Desa / Kelurahan</div><div class="value" id="eTitle"></div></div>
+    <div class="info-block"><div class="label">Jumlah RT</div><div class="value" id="eJml"></div></div>
+
+    <!-- EDITABLE (3 SAJA) -->
     <div class="info-block">
       <div class="label">RT PLN</div>
       <input id="ePln" type="number">
@@ -524,16 +498,17 @@ th{
     </div>
 
     <button class="btn-action" onclick="saveEdit()">💾 Simpan</button>
-    <button class="btn-action" style="background:#444"
-            onclick="cancelEdit()">❌ Batal</button>
-
+    <button class="btn-action" style="background:#444" onclick="cancelEdit()">❌ Batal</button>
   </div>
+
 </div>
+
 
 
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
+/* ================== CONFIG ================== */
 const API_URL =
 "https://script.google.com/macros/s/AKfycbxa-soCZiiqGB86ND1s5tKaIBwHSz0OGmv9OgJoDXYLKS1DvgcGy6e1sInZI3JD0oSm/exec";
 
@@ -552,22 +527,21 @@ const summaryTitle= document.getElementById("summaryTitle");
 const summaryValue= document.getElementById("summaryValue");
 const summarySub  = document.getElementById("summarySub");
 const panel       = document.getElementById("panel");
-
-
+const editBox     = document.getElementById("editBox");
 
 /* ================= DATA ================= */
 let data = [];
 let selected = null;
+let activePin = null;
 
 /* ================= LOAD DATA ================= */
 fetch(API_URL + "?action=getDesa")
-.then(r => r.json())
-.then(j => {
+.then(r=>r.json())
+.then(j=>{
   data = j.data || [];
   [...new Set(data.map(d=>d.kecamatan))].forEach(k=>{
-    const o = document.createElement("option");
-    o.value = k;
-    o.textContent = k;
+    const o=document.createElement("option");
+    o.value=k; o.textContent=k;
     filterKec.appendChild(o);
   });
 });
@@ -577,35 +551,34 @@ filterKec.onchange = render;
 /* ================= RENDER ================= */
 function render(){
   layer.clearLayers();
-  tbl.querySelector("tbody").innerHTML = "";
-  rekapTbl.querySelector("tbody").innerHTML = "";
-  panel.style.display = "none";
+  tbl.querySelector("tbody").innerHTML="";
+  rekapTbl.querySelector("tbody").innerHTML="";
+  panel.style.display="none";
+  editBox.style.display="none";
 
   if(!filterKec.value) return;
 
-  const bounds = [];
   const list = filterKec.value==="ALL"
     ? data
     : data.filter(d=>d.kecamatan===filterKec.value);
 
   let sumPln=0,sumNon=0,sumTidak=0,sumTotal=0;
-  let rekap={};
+  let rekap={}, bounds=[];
 
   list.forEach((d,i)=>{
-    sumPln   += +d.rt_pln || 0;
-    sumNon   += +d.rt_non_pln || 0;
-    sumTidak += +d.rt_non_listrik || 0;
-    sumTotal += +d.jumlah || 0;
+    sumPln+=+d.rt_pln||0;
+    sumNon+=+d.rt_non_pln||0;
+    sumTidak+=+d.rt_non_listrik||0;
+    sumTotal+=+d.jumlah||0;
 
     if(!rekap[d.kecamatan])
       rekap[d.kecamatan]={pln:0,non:0,tidak:0,total:0};
 
-    rekap[d.kecamatan].pln   += +d.rt_pln || 0;
-    rekap[d.kecamatan].non   += +d.rt_non_pln || 0;
-    rekap[d.kecamatan].tidak += +d.rt_non_listrik || 0;
-    rekap[d.kecamatan].total += +d.jumlah || 0;
+    rekap[d.kecamatan].pln+=+d.rt_pln||0;
+    rekap[d.kecamatan].non+=+d.rt_non_pln||0;
+    rekap[d.kecamatan].tidak+=+d.rt_non_listrik||0;
+    rekap[d.kecamatan].total+=+d.jumlah||0;
 
-    /* === TABLE === */
     const tr=document.createElement("tr");
     tr.innerHTML=`
       <td>${i+1}</td>
@@ -615,47 +588,28 @@ function render(){
       <td>${d.rt_non_pln}</td>
       <td>${d.rt_non_listrik}</td>
       <td>${d.jumlah}</td>
-      <td>${fmtPercent(d.persen_pln)}</td>
-      <td>${fmtPercent(d.persen_non_pln)}</td>
-      <td>${fmtPercent(d.persen_tidak_berlistrik)}</td>
-      <td>${d.updated_at || "2025"}</td>`;
+      <td>${fmt(d.persen_pln)}</td>
+      <td>${fmt(d.persen_non_pln)}</td>
+      <td>${fmt(d.persen_tidak_berlistrik)}</td>
+      <td>${d.updated_at||"2025"}</td>`;
     tr.onclick=()=>show(d);
     tbl.querySelector("tbody").appendChild(tr);
 
-    /* === MARKER === */
     if(d.latitude && d.longitude){
       const latlng=[
         Number(String(d.latitude).replace(",", ".")),
         Number(String(d.longitude).replace(",", "."))
       ];
-
-      const icon=L.divIcon({
-        className:"",
-        html:`
-          <div class="marker-bartim">
-            <div class="marker-label">${d.nama_wilayah}</div>
-            <div class="marker-kilat">⚡</div>
-            <img src="bartim.png">
-          </div>`,
-        iconSize:[40,60],
-        iconAnchor:[20,60]
-      });
-
-      L.marker(latlng,{icon})
-        .addTo(layer)
-        .on("click",()=>show(d));
-
+      L.marker(latlng).addTo(layer).on("click",()=>show(d));
       bounds.push(latlng);
     }
   });
 
-  if(bounds.length){
-    map.fitBounds(bounds,{padding:[40,40],maxZoom:13});
-  }
+  if(bounds.length) map.fitBounds(bounds,{padding:[40,40],maxZoom:13});
 
-  /* === SUMMARY === */
   summary.style.display="block";
-  const rasioKab = sumTotal ? (sumPln/sumTotal*100).toFixed(2) : "0.00";
+  summaryValue.innerText = sumTotal ? (sumPln/sumTotal*100).toFixed(2)+"%" : "0%";
+  summarySub.innerText = `RT PLN: ${sumPln} | Total RT: ${sumTotal}`;
 
   if(filterKec.value==="ALL"){
     summaryTitle.innerText="Rasio Elektrifikasi PLN Kabupaten Barito Timur";
@@ -678,58 +632,37 @@ function render(){
     summaryTitle.innerText="Rasio Elektrifikasi PLN Kecamatan "+filterKec.value;
     rekapBox.style.display="none";
   }
-
-  summaryValue.innerText = rasioKab+"%";
-  summarySub.innerText   = `RT PLN: ${sumPln} | Total RT: ${sumTotal}`;
 }
 
 /* ================= PANEL VIEW ================= */
 function show(d){
-  selected=d;
-/* panel fields */
-const pKec          = document.getElementById("pKec");
-const pTitle        = document.getElementById("pTitle");
-const pPln          = document.getElementById("pPln");
-const pNon          = document.getElementById("pNon");
-const pNonListrik   = document.getElementById("pNonListrik");
-const pJml          = document.getElementById("pJml");
-const pPlnPersen    = document.getElementById("pPlnPersen");
- const pNonPlnPersen = document.getElementById("pNonPlnPersen");
-const pTidakPersen  = document.getElementById("pTidakPersen");
-const pUpdated      = document.getElementById("pUpdated");
- 
-  pKec.innerText        = d.kecamatan;
-  pTitle.innerText      = d.nama_wilayah;
-  pPln.innerText        = d.rt_pln;
-  pNon.innerText        = d.rt_non_pln;
+  selected = d;
+
+  // VIEW
+  pKec.innerText = d.kecamatan;
+  pTitle.innerText = d.nama_wilayah;
+  pPln.innerText = d.rt_pln;
+  pNon.innerText = d.rt_non_pln;
   pNonListrik.innerText = d.rt_non_listrik;
-  pJml.innerText        = d.jumlah;
-
-  pPlnPersen.innerText    = fmtPercent(d.persen_pln);
+  pJml.innerText = d.jumlah;
+  pPlnPersen.innerText = fmtPercent(d.persen_pln);
   pNonPlnPersen.innerText = fmtPercent(d.persen_non_pln);
-  pTidakPersen.innerText  = fmtPercent(d.persen_tidak_berlistrik);
-  pUpdated.innerText      = d.updated_at || "2025";
+  pTidakPersen.innerText = fmtPercent(d.persen_tidak_berlistrik);
+  pUpdated.innerText = d.updated_at || "2025";
 
-  panel.style.display="block";
+  // EDIT readonly
+  eKec.innerText = d.kecamatan;
+  eTitle.innerText = d.nama_wilayah;
+  eJml.innerText = d.jumlah;
+
+  panel.classList.remove("edit-mode");
+  panel.style.display = "block";
 }
 
-/* ================= UTIL ================= */
-function fmtPercent(v){
-  if(v===null||v==="") return "0.00%";
-  if(String(v).includes("%")) return v;
-  return (Number(v)*100).toFixed(2)+"%";
-}
 
-/* ================= EDIT (SIAP, BELUM SIMPAN) ================= */
+/* ================= EDIT BY PIN ================= */
 function editData(){
-  if(!selected){
-    alert("Pilih desa terlebih dahulu");
-    return;
-  }
-
-  const pin = prompt(
-    "Masukkan PIN Desa/Kelurahan:\n" + selected.nama_wilayah
-  );
+  const pin = prompt("Masukkan PIN Desa/Kelurahan:\n"+selected.nama_wilayah);
   if(!pin) return;
 
   fetch(API_URL,{
@@ -742,80 +675,60 @@ function editData(){
   })
   .then(r=>r.json())
   .then(res=>{
-    if(res.status !== "ok"){
-      alert("❌ PIN salah / tidak aktif");
+    if(res.status!=="ok"){
+      alert("❌ PIN salah");
       return;
     }
 
-    // ✅ PIN BENAR → AKTIFKAN MODE EDIT
     panel.dataset.pin = pin;
+    panel.classList.add("edit-mode");
 
-    document.getElementById("editBox").style.display = "block";
-
-    ePln.value   = selected.rt_pln;
-    eNon.value   = selected.rt_non_pln;
+    // isi nilai awal input
+    ePln.value = selected.rt_pln;
+    eNon.value = selected.rt_non_pln;
     eTidak.value = selected.rt_non_listrik;
   });
 }
+
+/* ================= SAVE ================= */
 function saveEdit(){
   fetch(API_URL,{
     method:"POST",
     body:JSON.stringify({
       action:"updateDesa",
       id_desa:selected.id_desa,
-      pin:panel.dataset.pin,
-
-      rt_pln: ePln.value,
-      rt_non_pln: eNon.value,
-      rt_non_listrik: eTidak.value
+      pin:activePin,
+      rt_pln:id("ePln").value,
+      rt_non_pln:id("eNon").value,
+      rt_non_listrik:id("eTidak").value
     })
   })
   .then(r=>r.json())
   .then(res=>{
-    if(res.status !== "ok"){
-      alert("❌ Gagal menyimpan");
-      return;
-    }
-
-    alert("✅ Data berhasil disimpan");
-
-    // refresh data
-    fetch(API_URL+"?action=getDesa")
-      .then(r=>r.json())
-      .then(j=>{
-        data = j.data;
-        const d = data.find(x=>x.id_desa===selected.id_desa);
-        if(d) show(d);
-      });
-
-    cancelEdit();
+    if(res.status!=="ok") return alert("❌ Gagal simpan");
+    alert("✅ Data tersimpan");
+    render();
+    panel.style.display="none";
   });
 }
 
 function cancelEdit(){
-  document.getElementById("editBox").style.display="none";
+  panel.classList.remove("edit-mode");
 }
-/* ================= PANEL CLOSE + SWIPE ================= */
+
+
+/* ================= UTIL ================= */
+function id(x){ return document.getElementById(x); }
+function fmt(v){
+  if(v===null||v==="") return "0.00%";
+  if(String(v).includes("%")) return v;
+  return (Number(v)*100).toFixed(2)+"%";
+}
+
+/* ================= PANEL ================= */
 function closePanel(){ panel.style.display="none"; }
-
-let startY=0;
-panel.addEventListener("touchstart",e=>{
-  startY=e.touches[0].clientY;
-},{passive:true});
-
-panel.addEventListener("touchmove",e=>{
-  if(e.touches[0].clientY - startY > 80){
-    closePanel();
-  }
-},{passive:true});
-  
-  const th = document.getElementById("tahunFooter");
-if(th){
-  th.innerText = new Date().getFullYear();
-}
-
-
 </script>
+
 
 
 <footer class="footer">
