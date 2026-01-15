@@ -367,6 +367,38 @@ th{
 
 #panel.edit-mode .view-only{ display:none }
 #panel.edit-mode .edit-only{ display:block }
+/* ===== PANEL FLEX + FOOTER ===== */
+#panel{
+  display:none;
+  flex-direction:column;
+}
+
+/* body panel scroll */
+#panel .panel-body{
+  flex:1;
+  overflow-y:auto;
+}
+
+/* footer panel */
+.panel-footer{
+  margin-top:10px;
+  padding-top:10px;
+  border-top:1px solid rgba(255,255,255,.15);
+  font-size:11px;
+  color:#9ecbff;
+  text-align:center;
+}
+
+/* edit footer buttons */
+.panel-footer .footer-actions{
+  display:flex;
+  gap:10px;
+  margin-top:8px;
+}
+
+.panel-footer .footer-actions button{
+  flex:1;
+}
 
 </style>
 </head>
@@ -376,7 +408,7 @@ th{
 <header>
   <div class="header-inner">
     <div class="title">
-      <h1>WebGIS Rasio Elektrifikasi</h1>
+      <h2>WebGIS Rasio Elektrifikasi</h2>
       <small>Kabupaten Barito Timur</small>
     </div>
   </div>
@@ -384,8 +416,8 @@ th{
 
 <div class="container">
   <select id="filterKec">
-    <option value="">— PILIH KECAMATAN —</option>
-    <option value="ALL">SEMUA KECAMATAN</option>
+    <option value="">— Pilih Kecamatan—</option>
+    <option value="ALL">Semua Kecamatan</option>
   </select>
 
   <div id="map"></div>
@@ -409,14 +441,14 @@ th{
             <th>No</th>
             <th>Kecamatan</th>
             <th>Desa/Kelurahan</th>
-            <th>RT PLN</th>
-            <th>RT Non PLN</th>
-            <th>RT Non Listrik</th>
-            <th>Jumlah RT</th>
-            <th>% PLN</th>
-            <th>% Non PLN</th>
-            <th>% Tidak Berlistrik</th>
-            <th>Updated</th>
+            <th>Rumah Tangga Berlistrik PLN</th>
+            <th>Rumah Tangga Berlistrik Non PLN</th>
+            <th>Rumah Tangga Tidak Berlistrik</th>
+            <th>Jumlah Rumah Tangga</th>
+            <th>% Rumah Tangga Berlistrik PLN</th>
+            <th>% Rumah Tangga Berlistrik Non PLN</th>
+            <th>% Rumah Tangga Tidak Berlistrik</th>
+            <th>Terakhir Update</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -432,13 +464,13 @@ th{
         <thead>
           <tr>
             <th>Kecamatan</th>
-            <th>RT PLN</th>
-            <th>RT Non PLN</th>
-            <th>RT Non Listrik</th>
-            <th>Jumlah RT</th>
-            <th>% PLN</th>
-            <th>% Non PLN</th>
-            <th>% Tidak Berlistrik</th>
+            <th>Rumah Tangga Berlistrik PLN</th>
+            <th>Rumah Tangga Berlistrik Non PLN</th>
+            <th>Rumah Tangga Tidak Berlistrik</th>
+            <th>Jumlah Rumah Tangga</th>
+            <th>% Rumah Tangga Berlistrik PLN</th>
+            <th>% Rumah Tangga Berlistrik Non PLN</th>
+            <th>% Rumah Tangga Tidak Berlistrik</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -452,7 +484,7 @@ th{
 <div id="panel">
 
   <div class="panel-header">
-    <div class="panel-title">Detail Desa</div>
+    <div class="panel-title">Detail Desa/Kelurahan</div>
     <button class="panel-close" onclick="closePanel()">✕</button>
   </div>
 
@@ -461,16 +493,22 @@ th{
 
     <div class="info-block"><div class="label">Kecamatan</div><div class="value" id="pKec"></div></div>
     <div class="info-block"><div class="label">Desa / Kelurahan</div><div class="value" id="pTitle"></div></div>
-    <div class="info-block"><div class="label">RT PLN</div><div class="value" id="pPln"></div></div>
-    <div class="info-block"><div class="label">RT Non PLN</div><div class="value" id="pNon"></div></div>
-    <div class="info-block"><div class="label">RT Non Listrik</div><div class="value" id="pNonListrik"></div></div>
-    <div class="info-block"><div class="label">Jumlah RT</div><div class="value" id="pJml"></div></div>
-    <div class="info-block"><div class="label">% PLN</div><div class="value" id="pPlnPersen"></div></div>
-    <div class="info-block"><div class="label">% Non PLN</div><div class="value" id="pNonPlnPersen"></div></div>
-    <div class="info-block"><div class="label">% Tidak Berlistrik</div><div class="value" id="pTidakPersen"></div></div>
-    <div class="info-block"><div class="label">Updated</div><div class="value" id="pUpdated"></div></div>
+    <div class="info-block"><div class="label">Rumah Tangga Berlistrik PLN</div><div class="value" id="pPln"></div></div>
+    <div class="info-block"><div class="label">Rumah Tangga Berlistrik Non PLN</div><div class="value" id="pNon"></div></div>
+    <div class="info-block"><div class="label">Rumah Tangga Tidak Beristrik</div><div class="value" id="pNonListrik"></div></div>
+    <div class="info-block"><div class="label">Jumlah Rumah Tangga</div><div class="value" id="pJml"></div></div>
+    <div class="info-block"><div class="label">% Rumah Tangga Berlistrik PLN</div><div class="value" id="pPlnPersen"></div></div>
+    <div class="info-block"><div class="label">% Rumah Tangga Berlistrik Non PLN</div><div class="value" id="pNonPlnPersen"></div></div>
+    <div class="info-block"><div class="label">% Rumah Tangga Tidak Berlistrik</div><div class="value" id="pTidakPersen"></div></div>
+    <div class="info-block"><div class="label">Terakhir Update</div><div class="value" id="pUpdated"></div></div>
 
     <button class="btn-action" onclick="editData()">✏️ Edit Data</button>
+
+<div class="panel-footer">
+  Sistem Informasi Rasio Elektrifikasi<br>
+  Kabupaten Barito Timur
+</div>
+
   </div>
 
   <!-- ================= EDIT MODE ================= -->
@@ -483,22 +521,30 @@ th{
 
     <!-- EDITABLE (3 SAJA) -->
     <div class="info-block">
-      <div class="label">RT PLN</div>
+      <div class="label">Rumah Tangga Berlistrik PLN</div>
       <input id="ePln" type="number">
     </div>
 
     <div class="info-block">
-      <div class="label">RT Non PLN</div>
+      <div class="label">Rumah Tangga Berlistrik Non PLN</div>
       <input id="eNon" type="number">
     </div>
 
     <div class="info-block">
-      <div class="label">RT Non Listrik</div>
+      <div class="label">Rumah Tangga Tidak Berlistrik</div>
       <input id="eTidak" type="number">
     </div>
 
+    <div class="panel-footer">
+  <div class="footer-actions">
     <button class="btn-action" onclick="saveEdit()">💾 Simpan</button>
     <button class="btn-action" style="background:#444" onclick="cancelEdit()">❌ Batal</button>
+  </div>
+  <div style="margin-top:6px">
+    Edit Data Desa/Kelurahan – Akses Terbatas 🔐
+  </div>
+</div>
+
   </div>
 
 </div>
