@@ -405,6 +405,15 @@ th{
       <div class="label">% PLN</div>
       <div class="value" id="pPlnPersen"></div>
     </div>
+<div class="info-block">
+  <div class="label">% Non PLN</div>
+  <div class="value" id="pNonPlnPersen"></div>
+</div>
+
+<div class="info-block">
+  <div class="label">% Tidak Berlistrik</div>
+  <div class="value" id="pTidakPersen"></div>
+</div>
 
     <div class="info-block">
       <div class="label">Updated</div>
@@ -452,7 +461,7 @@ function render(){
 
   tbl.querySelector("tbody").innerHTML="";
   rekapTbl.querySelector("tbody").innerHTML="";
-panel.classList.remove("show");   // ← INI YANG BENAR
+
 
 
   if(!filterKec.value) return;
@@ -645,10 +654,9 @@ function cancelEdit(){
   show(selected);
 }
   function closePanel(){
-  panel.classList.remove("show");
-  if(window.innerWidth > 768){
-    panel.style.display = "none";
-  }
+  panel.style.display = "none";
+}
+
 }
 
 let startY=0;
