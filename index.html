@@ -518,23 +518,32 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:20}).a
 const layer = L.layerGroup().addTo(map);
 
 /* ================= DOM ================= */
-const filterKec   = document.getElementById("filterKec");
-const tbl         = document.getElementById("tbl");
-const rekapTbl    = document.getElementById("rekapTbl");
-const rekapBox    = document.getElementById("rekapBox");
-const summary     = document.getElementById("summary");
-const summaryTitle= document.getElementById("summaryTitle");
-const summaryValue= document.getElementById("summaryValue");
-const summarySub  = document.getElementById("summarySub");
-const panel       = document.getElementById("panel");
+const filterKec    = document.getElementById("filterKec");
+const tbl          = document.getElementById("tbl");
+const rekapTbl     = document.getElementById("rekapTbl");
+const rekapBox     = document.getElementById("rekapBox");
+const summary      = document.getElementById("summary");
+const summaryTitle = document.getElementById("summaryTitle");
+const summaryValue = document.getElementById("summaryValue");
+const summarySub   = document.getElementById("summarySub");
+const panel        = document.getElementById("panel");
+
+/* PANEL VIEW */
+const pKec  = id("pKec"),  pTitle = id("pTitle"), pPln = id("pPln"),
+      pNon  = id("pNon"),  pNonL  = id("pNonListrik"),
+      pJml  = id("pJml"),  pPlnP  = id("pPlnPersen"),
+      pNonP = id("pNonPlnPersen"), pTidP = id("pTidakPersen"),
+      pUpd  = id("pUpdated");
+
+/* PANEL EDIT */
+const eKec=id("eKec"), eTitle=id("eTitle"), eJml=id("eJml"),
+      ePln=id("ePln"), eNon=id("eNon"), eTidak=id("eTidak");
 
 /* ================= DATA ================= */
-let data = [];
-let selected = null;
-let activePin = null;
+let data=[], selected=null;
 
 /* ================= LOAD DATA ================= */
-fetch(API_URL + "?action=getDesa")
+fetch(API_URL+"?action=getDesa")
 .then(r=>r.json())
 .then(j=>{
   data = j.data || [];
@@ -553,7 +562,7 @@ function render(){
   tbl.querySelector("tbody").innerHTML="";
   rekapTbl.querySelector("tbody").innerHTML="";
   panel.style.display="none";
- 
+
   if(!filterKec.value) return;
 
   const list = filterKec.value==="ALL"
@@ -598,16 +607,35 @@ function render(){
         Number(String(d.latitude).replace(",", ".")),
         Number(String(d.longitude).replace(",", "."))
       ];
-      L.marker(latlng).addTo(layer).on("click",()=>show(d));
+
+      const icon=L.divIcon({
+        className:"",
+        html:`
+          <div class="marker-bartim">
+            <div class="marker-label">${d.nama_wilayah}</div>
+            <div class="marker-kilat">⚡</div>
+            <img src="bartim.png">
+          </div>`,
+        iconSize:[40,60],
+        iconAnchor:[20,60]
+      });
+
+      L.marker(latlng,{icon})
+        .addTo(layer)
+        .on("click",()=>show(d));
+
       bounds.push(latlng);
     }
   });
 
-  if(bounds.length) map.fitBounds(bounds,{padding:[40,40],maxZoom:13});
+  if(bounds.length)
+    map.fitBounds(bounds,{padding:[40,40],maxZoom:13});
 
   summary.style.display="block";
-  summaryValue.innerText = sumTotal ? (sumPln/sumTotal*100).toFixed(2)+"%" : "0%";
-  summarySub.innerText = `RT PLN: ${sumPln} | Total RT: ${sumTotal}`;
+  summaryValue.innerText =
+    sumTotal ? (sumPln/sumTotal*100).toFixed(2)+"%" : "0%";
+  summarySub.innerText =
+    `RT PLN: ${sumPln} | Total RT: ${sumTotal}`;
 
   if(filterKec.value==="ALL"){
     summaryTitle.innerText="Rasio Elektrifikasi PLN Kabupaten Barito Timur";
@@ -627,40 +655,40 @@ function render(){
         </tr>`;
     }
   }else{
-    summaryTitle.innerText="Rasio Elektrifikasi PLN Kecamatan "+filterKec.value;
+    summaryTitle.innerText =
+      "Rasio Elektrifikasi PLN Kecamatan "+filterKec.value;
     rekapBox.style.display="none";
   }
 }
 
 /* ================= PANEL VIEW ================= */
 function show(d){
-  selected = d;
+  selected=d;
 
-  // VIEW
-  pKec.innerText = d.kecamatan;
-  pTitle.innerText = d.nama_wilayah;
-  pPln.innerText = d.rt_pln;
-  pNon.innerText = d.rt_non_pln;
-  pNonListrik.innerText = d.rt_non_listrik;
-  pJml.innerText = d.jumlah;
-  pPlnPersen.innerText = fmtPercent(d.persen_pln);
-  pNonPlnPersen.innerText = fmtPercent(d.persen_non_pln);
-  pTidakPersen.innerText = fmtPercent(d.persen_tidak_berlistrik);
-  pUpdated.innerText = d.updated_at || "2025";
+  pKec.innerText=d.kecamatan;
+  pTitle.innerText=d.nama_wilayah;
+  pPln.innerText=d.rt_pln;
+  pNon.innerText=d.rt_non_pln;
+  pNonL.innerText=d.rt_non_listrik;
+  pJml.innerText=d.jumlah;
+  pPlnP.innerText=fmt(d.persen_pln);
+  pNonP.innerText=fmt(d.persen_non_pln);
+  pTidP.innerText=fmt(d.persen_tidak_berlistrik);
+  pUpd.innerText=d.updated_at||"2025";
 
-  // EDIT readonly
-  eKec.innerText = d.kecamatan;
-  eTitle.innerText = d.nama_wilayah;
-  eJml.innerText = d.jumlah;
+  eKec.innerText=d.kecamatan;
+  eTitle.innerText=d.nama_wilayah;
+  eJml.innerText=d.jumlah;
 
   panel.classList.remove("edit-mode");
-  panel.style.display = "block";
+  panel.style.display="block";
 }
-
 
 /* ================= EDIT BY PIN ================= */
 function editData(){
-  const pin = prompt("Masukkan PIN Desa/Kelurahan:\n"+selected.nama_wilayah);
+  if(!selected) return;
+
+  const pin=prompt("Masukkan PIN Desa/Kelurahan:\n"+selected.nama_wilayah);
   if(!pin) return;
 
   fetch(API_URL,{
@@ -673,18 +701,14 @@ function editData(){
   })
   .then(r=>r.json())
   .then(res=>{
-    if(res.status!=="ok"){
-      alert("❌ PIN salah");
-      return;
-    }
+    if(res.status!=="ok") return alert("❌ PIN salah");
 
     panel.dataset.pin = pin;
     panel.classList.add("edit-mode");
 
-    // isi nilai awal input
-    ePln.value = selected.rt_pln;
-    eNon.value = selected.rt_non_pln;
-    eTidak.value = selected.rt_non_listrik;
+    ePln.value=selected.rt_pln;
+    eNon.value=selected.rt_non_pln;
+    eTidak.value=selected.rt_non_listrik;
   });
 }
 
@@ -695,10 +719,10 @@ function saveEdit(){
     body:JSON.stringify({
       action:"updateDesa",
       id_desa:selected.id_desa,
-      pin:activePin,
-      rt_pln:id("ePln").value,
-      rt_non_pln:id("eNon").value,
-      rt_non_listrik:id("eTidak").value
+      pin:panel.dataset.pin,
+      rt_pln:ePln.value,
+      rt_non_pln:eNon.value,
+      rt_non_listrik:eTidak.value
     })
   })
   .then(r=>r.json())
@@ -706,7 +730,6 @@ function saveEdit(){
     if(res.status!=="ok") return alert("❌ Gagal simpan");
     alert("✅ Data tersimpan");
     render();
-    panel.style.display="none";
   });
 }
 
@@ -714,9 +737,8 @@ function cancelEdit(){
   panel.classList.remove("edit-mode");
 }
 
-
 /* ================= UTIL ================= */
-function id(x){ return document.getElementById(x); }
+function id(x){return document.getElementById(x)}
 function fmt(v){
   if(v===null||v==="") return "0.00%";
   if(String(v).includes("%")) return v;
@@ -724,8 +746,9 @@ function fmt(v){
 }
 
 /* ================= PANEL ================= */
-function closePanel(){ panel.style.display="none"; }
+function closePanel(){panel.style.display="none"}
 </script>
+
 
 
 
