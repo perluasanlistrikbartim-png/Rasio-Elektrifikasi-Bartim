@@ -687,7 +687,7 @@ function render(){
   layer.clearLayers();
   tbl.querySelector("tbody").innerHTML="";
   rekapTbl.querySelector("tbody").innerHTML="";
-  panel.style.display="none";
+ panel.classList.remove("show","edit-mode");
 
   if(!filterKec.value) return;
 
