@@ -386,6 +386,64 @@ function show(d){
   if(v === "" || v === null || isNaN(v)) return "0.00%";
   return (Number(v) * 100).toFixed(2) + "%";
 }
+function editData(){
+  if(!selected){
+    alert("Pilih desa terlebih dahulu");
+    return;
+  }
+
+  const pin = prompt(
+    "Masukkan PIN Desa/Kelurahan:\n" +
+    selected.nama_wilayah
+  );
+
+  if(!pin) return;
+
+  fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "checkPin",
+      id_desa: selected.id_desa,
+      pin: pin
+    })
+  })
+  .then(r => r.json())
+  .then(res => {
+    if(res.status !== "ok"){
+      alert("PIN salah atau tidak aktif");
+      return;
+    }
+
+    // PIN BENAR → AKTIFKAN MODE EDIT
+    enableEditMode(pin);
+  })
+  .catch(err=>{
+    alert("Gagal koneksi server");
+    console.error(err);
+  });
+}
+function enableEditMode(pin){
+  const panel = document.getElementById("panel");
+
+  panel.dataset.pin = pin; // simpan sementara (1 sesi)
+
+  pPln.innerHTML = `<input id="ePln" type="number" value="${selected.rt_pln}">`;
+  pNon.innerHTML = `<input id="eNon" type="number" value="${selected.rt_non_pln}">`;
+
+  // kalau sudah ada RT Non Listrik
+  if(document.getElementById("pNonListrik")){
+    pNonListrik.innerHTML =
+      `<input id="eNonListrik" type="number" value="${selected.rt_non_listrik||0}">`;
+  }
+
+  panel.querySelector("button").outerHTML = `
+    <button onclick="saveEdit()">💾 Simpan</button>
+    <button onclick="cancelEdit()">❌ Batal</button>
+  `;
+}
+function cancelEdit(){
+  show(selected); // kembali ke mode view
+}
 
 </script>
 
