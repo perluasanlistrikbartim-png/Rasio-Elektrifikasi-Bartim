@@ -505,6 +505,29 @@ th{
     <button class="btn-action" onclick="editData()">✏️ Edit Data</button>
 
   </div>
+  <!-- ===== EDIT MODE (INI TAMBAHAN BARU) ===== -->
+  <div id="editBox" style="display:none;margin-top:14px">
+
+    <div class="info-block">
+      <div class="label">RT PLN</div>
+      <input id="ePln" type="number">
+    </div>
+
+    <div class="info-block">
+      <div class="label">RT Non PLN</div>
+      <input id="eNon" type="number">
+    </div>
+
+    <div class="info-block">
+      <div class="label">RT Non Listrik</div>
+      <input id="eTidak" type="number">
+    </div>
+
+    <button class="btn-action" onclick="saveEdit()">💾 Simpan</button>
+    <button class="btn-action" style="background:#444"
+            onclick="cancelEdit()">❌ Batal</button>
+
+  </div>
 </div>
 
 
@@ -699,12 +722,79 @@ function fmtPercent(v){
 
 /* ================= EDIT (SIAP, BELUM SIMPAN) ================= */
 function editData(){
-  if(!selected){ alert("Pilih desa terlebih dahulu"); return; }
-  const pin=prompt("Masukkan PIN Desa/Kelurahan:\n"+selected.nama_wilayah);
+  if(!selected){
+    alert("Pilih desa terlebih dahulu");
+    return;
+  }
+
+  const pin = prompt(
+    "Masukkan PIN Desa/Kelurahan:\n" + selected.nama_wilayah
+  );
   if(!pin) return;
-  // saveEdit nanti
+
+  fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"checkPin",
+      id_desa:selected.id_desa,
+      pin:pin
+    })
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    if(res.status !== "ok"){
+      alert("❌ PIN salah / tidak aktif");
+      return;
+    }
+
+    // ✅ PIN BENAR → AKTIFKAN MODE EDIT
+    panel.dataset.pin = pin;
+
+    document.getElementById("editBox").style.display = "block";
+
+    ePln.value   = selected.rt_pln;
+    eNon.value   = selected.rt_non_pln;
+    eTidak.value = selected.rt_non_listrik;
+  });
+}
+function saveEdit(){
+  fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"updateDesa",
+      id_desa:selected.id_desa,
+      pin:panel.dataset.pin,
+
+      rt_pln: ePln.value,
+      rt_non_pln: eNon.value,
+      rt_non_listrik: eTidak.value
+    })
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    if(res.status !== "ok"){
+      alert("❌ Gagal menyimpan");
+      return;
+    }
+
+    alert("✅ Data berhasil disimpan");
+
+    // refresh data
+    fetch(API_URL+"?action=getDesa")
+      .then(r=>r.json())
+      .then(j=>{
+        data = j.data;
+        const d = data.find(x=>x.id_desa===selected.id_desa);
+        if(d) show(d);
+      });
+
+    cancelEdit();
+  });
 }
 
+function cancelEdit(){
+  document.getElementById("editBox").style.display="none";
+}
 /* ================= PANEL CLOSE + SWIPE ================= */
 function closePanel(){ panel.style.display="none"; }
 
