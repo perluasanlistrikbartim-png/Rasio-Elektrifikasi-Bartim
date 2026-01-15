@@ -139,33 +139,54 @@ th{
 }
 
 /* ================= PANEL ================= */
+/* ================= PANEL (BOTTOM SHEET) ================= */
 #panel{
-  position:fixed;
-  top:110px;
-  right:20px;
-  width:360px;
-  background:#071a33;
-  border-radius:18px;
-  padding:14px;
-  display:none;
-  z-index:999;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: -100%;
+  height: 40vh;              /* TINGGI DIKUNCI */
+  background: #071a33;
+  border-radius: 18px 18px 0 0;
+  padding: 14px;
+  z-index: 999;
+  box-shadow: 0 -10px 30px rgba(0,0,0,.6);
+  transition: bottom .35s ease;
+  overflow-y: auto;
 }
-.info-block{
-  margin-bottom:8px;
-  border-bottom:1px dashed rgba(255,255,255,.15);
-}
-.label{font-size:11px;color:#9ecbff}
-.value{font-weight:700}
 
-button{
-  width:100%;
-  padding:10px;
-  border:none;
-  border-radius:10px;
-  background:#00b4ff;
-  font-weight:700;
-  cursor:pointer;
+/* panel aktif */
+#panel.show{
+  bottom: 0;
 }
+
+/* header panel */
+.panel-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+/* drag handle */
+.panel-drag{
+  width: 40px;
+  height: 5px;
+  background: #5fa8ff;
+  border-radius: 10px;
+  margin: 0 auto 8px;
+  opacity: .7;
+}
+
+/* close button */
+.panel-close{
+  background: none;
+  border: none;
+  color: #7dd3fc;
+  font-size: 18px;
+  cursor: pointer;
+}
+
   /* ================= CUSTOM MARKER ================= */
 .marker-bartim{
   position: relative;
@@ -287,6 +308,13 @@ button{
 
 <!-- PANEL DETAIL -->
 <div id="panel">
+  <div class="panel-drag"></div>
+
+<div class="panel-header">
+  <strong id="panelTitle">Detail Desa</strong>
+  <button class="panel-close" onclick="closePanel()">✕</button>
+</div>
+
   <div class="info-block"><div class="label">Kecamatan</div><div class="value" id="pKec"></div></div>
   <div class="info-block"><div class="label">Desa/Kelurahan</div><div class="value" id="pTitle"></div></div>
 
@@ -337,7 +365,8 @@ function render(){
 
   tbl.querySelector("tbody").innerHTML="";
   rekapTbl.querySelector("tbody").innerHTML="";
-  panel.style.display="none";
+panel.classList.remove("show");   // ← INI YANG BENAR
+
 
   if(!filterKec.value) return;
 
@@ -452,17 +481,20 @@ function render(){
 
 /* ================= PANEL VIEW ================= */
 function show(d){
-  selected=d;
-  pKec.innerText=d.kecamatan;
-  pTitle.innerText=d.nama_wilayah;
-  pPln.innerText=d.rt_pln;
-  pNon.innerText=d.rt_non_pln;
-  pNonListrik.innerText=d.rt_non_listrik;
-  pJml.innerText=d.jumlah;
+  selected = d;
+
+  pKec.innerText = d.kecamatan;
+  pTitle.innerText = d.nama_wilayah;
+  pPln.innerText = d.rt_pln;
+  pNon.innerText = d.rt_non_pln;
+  pNonListrik.innerText = d.rt_non_listrik;
+  pJml.innerText = d.jumlah;
   pPlnPersen.innerText = fmtPercent(d.persen_pln);
-  pUpdated.innerText=d.updated_at || "2025";
-  panel.style.display="block";
+  pUpdated.innerText = d.updated_at || "2025";
+
+  panel.classList.add("show");
 }
+
 
 /* ================= UTIL ================= */
 function fmtPercent(v){
@@ -517,6 +549,22 @@ function enableEditMode(pin){
 function cancelEdit(){
   show(selected);
 }
+  function closePanel(){
+  panel.classList.remove("show");
+}
+let startY = 0;
+
+panel.addEventListener("touchstart", e=>{
+  startY = e.touches[0].clientY;
+});
+
+panel.addEventListener("touchmove", e=>{
+  const y = e.touches[0].clientY;
+  if(y - startY > 80){
+    closePanel();
+  }
+});
+
 </script>
 
 
