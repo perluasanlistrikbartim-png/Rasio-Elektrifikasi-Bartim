@@ -527,7 +527,6 @@ const summaryTitle= document.getElementById("summaryTitle");
 const summaryValue= document.getElementById("summaryValue");
 const summarySub  = document.getElementById("summarySub");
 const panel       = document.getElementById("panel");
-const editBox     = document.getElementById("editBox");
 
 /* ================= DATA ================= */
 let data = [];
@@ -554,8 +553,7 @@ function render(){
   tbl.querySelector("tbody").innerHTML="";
   rekapTbl.querySelector("tbody").innerHTML="";
   panel.style.display="none";
-  editBox.style.display="none";
-
+ 
   if(!filterKec.value) return;
 
   const list = filterKec.value==="ALL"
