@@ -268,51 +268,60 @@ button{
 <script>
 const API_URL="https://script.google.com/macros/s/AKfycbxa-soCZiiqGB86ND1s5tKaIBwHSz0OGmv9OgJoDXYLKS1DvgcGy6e1sInZI3JD0oSm/exec";
 
+/* ================= MAP ================= */
 const map=L.map("map",{maxZoom:20}).setView([-2.1,115.1],8);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:20}).addTo(map);
 const layer=L.layerGroup().addTo(map);
 
-let data=[],selected=null;
+/* ================= DATA ================= */
+let data=[], selected=null;
 
+/* ================= LOAD DATA ================= */
 fetch(API_URL+"?action=getDesa")
 .then(r=>r.json())
 .then(j=>{
   data=j.data;
   [...new Set(data.map(d=>d.kecamatan))].forEach(k=>{
     let o=document.createElement("option");
-    o.value=k;o.textContent=k;
+    o.value=k;
+    o.textContent=k;
     filterKec.appendChild(o);
   });
 });
 
 filterKec.onchange=render;
 
+/* ================= RENDER ================= */
 function render(){
   layer.clearLayers();
+  const bounds = [];
+
   tbl.querySelector("tbody").innerHTML="";
   rekapTbl.querySelector("tbody").innerHTML="";
   panel.style.display="none";
 
   if(!filterKec.value) return;
 
-  const list=filterKec.value==="ALL"?data:data.filter(d=>d.kecamatan===filterKec.value);
+  const list = filterKec.value==="ALL"
+    ? data
+    : data.filter(d=>d.kecamatan===filterKec.value);
 
-  let sumPln=0,sumNon=0,sumTidak=0,sumTotal=0;
+  let sumPln=0, sumNon=0, sumTidak=0, sumTotal=0;
   let rekap={};
 
   list.forEach((d,i)=>{
-    sumPln+=+d.rt_pln||0;
-    sumNon+=+d.rt_non_pln||0;
-    sumTidak+=+d.rt_non_listrik||0;
-    sumTotal+=+d.jumlah||0;
+    sumPln += +d.rt_pln || 0;
+    sumNon += +d.rt_non_pln || 0;
+    sumTidak += +d.rt_non_listrik || 0;
+    sumTotal += +d.jumlah || 0;
 
     if(!rekap[d.kecamatan])
       rekap[d.kecamatan]={pln:0,non:0,tidak:0,total:0};
 
-    rekap[d.kecamatan].pln+=+d.rt_pln||0;
-    rekap[d.kecamatan].non+=+d.rt_non_pln||0;
-    rekap[d.kecamatan].tidak+=+d.rt_non_listrik||0;
-    rekap[d.kecamatan].total+=+d.jumlah||0;
+    rekap[d.kecamatan].pln += +d.rt_pln || 0;
+    rekap[d.kecamatan].non += +d.rt_non_pln || 0;
+    rekap[d.kecamatan].tidak += +d.rt_non_listrik || 0;
+    rekap[d.kecamatan].total += +d.jumlah || 0;
 
     const tr=document.createElement("tr");
     tr.innerHTML=`
@@ -323,25 +332,44 @@ function render(){
       <td>${d.rt_non_pln}</td>
       <td>${d.rt_non_listrik}</td>
       <td>${d.jumlah}</td>
-     <td>${fmtPercent(d.persen_pln)}</td>
-<td>${fmtPercent(d.persen_non_pln)}</td>
-<td>${fmtPercent(d.persen_tidak_berlistrik)}</td>
-
-      <td>${d.updated_at || "2025"}</td>`;
+      <td>${fmtPercent(d.persen_pln)}</td>
+      <td>${fmtPercent(d.persen_non_pln)}</td>
+      <td>${fmtPercent(d.persen_tidak_berlistrik)}</td>
+      <td>${d.updated_at || "2025"}</td>
+    `;
     tr.onclick=()=>show(d);
     tbl.querySelector("tbody").appendChild(tr);
 
     if(d.latitude && d.longitude){
-      L.marker([d.latitude,d.longitude]).addTo(layer).on("click",()=>show(d));
+      const latlng = [
+        Number(d.latitude.toString().replace(",", ".")),
+        Number(d.longitude.toString().replace(",", "."))
+      ];
+
+      L.marker(latlng)
+        .addTo(layer)
+        .on("click",()=>show(d));
+
+      bounds.push(latlng);
     }
   });
 
-  const rasioKab=(sumPln/sumTotal*100).toFixed(2);
+  /* ===== FIT MAP TO MARKER ===== */
+  if(bounds.length > 0){
+    map.fitBounds(bounds,{
+      padding:[40,40],
+      maxZoom:13
+    });
+  }
 
+  /* ===== SUMMARY ===== */
+  const rasioKab = sumTotal ? (sumPln/sumTotal*100).toFixed(2) : "0.00";
   summary.style.display="block";
+
   if(filterKec.value==="ALL"){
     summaryTitle.innerText="Rasio Elektrifikasi PLN Kabupaten Barito Timur";
     rekapBox.style.display="block";
+    rekapTbl.querySelector("tbody").innerHTML="";
 
     for(let k in rekap){
       const rPln=(rekap[k].pln/rekap[k].total*100).toFixed(2);
@@ -356,9 +384,8 @@ function render(){
           <td>${rekap[k].tidak}</td>
           <td>${rekap[k].total}</td>
           <td>${rPln}%</td>
-<td>${rNon}%</td>
-<td>${rTidak}%</td>
-
+          <td>${rNon}%</td>
+          <td>${rTidak}%</td>
         </tr>`;
     }
   }else{
@@ -366,10 +393,11 @@ function render(){
     rekapBox.style.display="none";
   }
 
-  summaryValue.innerText=rasioKab+"%";
-  summarySub.innerText=`RT PLN: ${sumPln} | Total RT: ${sumTotal}`;
+  summaryValue.innerText = rasioKab+"%";
+  summarySub.innerText = `RT PLN: ${sumPln} | Total RT: ${sumTotal}`;
 }
 
+/* ================= PANEL VIEW ================= */
 function show(d){
   selected=d;
   pKec.innerText=d.kecamatan;
@@ -378,14 +406,19 @@ function show(d){
   pNon.innerText=d.rt_non_pln;
   pNonListrik.innerText=d.rt_non_listrik;
   pJml.innerText=d.jumlah;
-  pPlnPersen.innerText = d.persen_pln + "%";
+  pPlnPersen.innerText = fmtPercent(d.persen_pln);
   pUpdated.innerText=d.updated_at || "2025";
   panel.style.display="block";
 }
-  function fmtPercent(v){
-  if(v === "" || v === null || isNaN(v)) return "0.00%";
-  return (Number(v) * 100).toFixed(2) + "%";
+
+/* ================= UTIL ================= */
+function fmtPercent(v){
+  if(v===null || v==="") return "0.00%";
+  if(String(v).includes("%")) return v;
+  return (Number(v)*100).toFixed(2)+"%";
 }
+
+/* ================= EDIT + PIN ================= */
 function editData(){
   if(!selected){
     alert("Pilih desa terlebih dahulu");
@@ -393,59 +426,46 @@ function editData(){
   }
 
   const pin = prompt(
-    "Masukkan PIN Desa/Kelurahan:\n" +
-    selected.nama_wilayah
+    "Masukkan PIN Desa/Kelurahan:\n"+selected.nama_wilayah
   );
-
   if(!pin) return;
 
-  fetch(API_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "checkPin",
-      id_desa: selected.id_desa,
-      pin: pin
+  fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"checkPin",
+      id_desa:selected.id_desa,
+      pin:pin
     })
   })
-  .then(r => r.json())
-  .then(res => {
-    if(res.status !== "ok"){
+  .then(r=>r.json())
+  .then(res=>{
+    if(res.status!=="ok"){
       alert("PIN salah atau tidak aktif");
       return;
     }
-
-    // PIN BENAR → AKTIFKAN MODE EDIT
     enableEditMode(pin);
-  })
-  .catch(err=>{
-    alert("Gagal koneksi server");
-    console.error(err);
   });
 }
-function enableEditMode(pin){
-  const panel = document.getElementById("panel");
 
-  panel.dataset.pin = pin; // simpan sementara (1 sesi)
+function enableEditMode(pin){
+  panel.dataset.pin = pin;
 
   pPln.innerHTML = `<input id="ePln" type="number" value="${selected.rt_pln}">`;
   pNon.innerHTML = `<input id="eNon" type="number" value="${selected.rt_non_pln}">`;
-
-  // kalau sudah ada RT Non Listrik
-  if(document.getElementById("pNonListrik")){
-    pNonListrik.innerHTML =
-      `<input id="eNonListrik" type="number" value="${selected.rt_non_listrik||0}">`;
-  }
+  pNonListrik.innerHTML = `<input id="eNonListrik" type="number" value="${selected.rt_non_listrik||0}">`;
 
   panel.querySelector("button").outerHTML = `
     <button onclick="saveEdit()">💾 Simpan</button>
     <button onclick="cancelEdit()">❌ Batal</button>
   `;
 }
-function cancelEdit(){
-  show(selected); // kembali ke mode view
-}
 
+function cancelEdit(){
+  show(selected);
+}
 </script>
+
 
 </body>
 </html>
