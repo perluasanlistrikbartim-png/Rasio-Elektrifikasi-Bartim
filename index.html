@@ -9,24 +9,20 @@
 
 <style>
 /* =====================================================
-   GLOBAL RESET & BASIC
+   RESET AMAN (TIDAK MERUSAK LEAFLET)
 ===================================================== */
-*{
-  box-sizing:border-box;
-}
-
-body{
+html,body{
   margin:0;
+  padding:0;
   background:#020216;
   color:#e0f7ff;
   font-family:Segoe UI, sans-serif;
 }
 
 /* =====================================================
-   HEADER (CENTER FIX)
+   HEADER (CENTER, STABIL)
 ===================================================== */
 header{
-  padding:14px 18px;
   background:#000814;
   border-bottom:3px solid #f4b400;
   position:relative;
@@ -36,34 +32,34 @@ header{
 header::after{
   content:"";
   position:absolute;
-  top:0; left:-120%;
-  width:120%;
-  height:100%;
+  inset:0;
   background:linear-gradient(
     120deg,
     transparent 30%,
-    rgba(255,255,255,.25),
+    rgba(255,255,255,.18),
     transparent 70%
   );
+  transform:translateX(-120%);
   animation:kilat 6s infinite;
 }
 
 @keyframes kilat{
-  0%,85%{left:-120%}
-  100%{left:120%}
+  0%,85%{transform:translateX(-120%)}
+  100%{transform:translateX(120%)}
 }
 
 .header-inner{
   max-width:1200px;
   margin:auto;
+  padding:14px 16px;
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:16px;
+  gap:14px;
 }
 
 .header-logo img{
-  height:48px;
+  height:46px;
   width:auto;
   filter:drop-shadow(0 0 6px rgba(244,180,0,.6));
 }
@@ -74,20 +70,18 @@ header::after{
 
 .header-title h1{
   margin:0;
-  font-size:1.6rem;
+  font-size:1.5rem;
   font-weight:800;
-  letter-spacing:.5px;
-  color:#ffffff;
+  color:#fff;
 }
 
 .header-title span{
   font-size:13px;
   color:#ffe08a;
-  letter-spacing:.6px;
 }
 
 /* =====================================================
-   CONTAINER SYSTEM (INI KUNCI SEMUA CENTER)
+   CONTAINER UTAMA (SEMUA TENGAH)
 ===================================================== */
 .container{
   max-width:1200px;
@@ -96,7 +90,7 @@ header::after{
 }
 
 /* =====================================================
-   SNAPSHOT PANEL (CENTER & RESPONSIVE)
+   SNAPSHOT PANEL (TERKUNCI AMAN)
 ===================================================== */
 .snapshot-wrapper{
   max-width:1200px;
@@ -107,14 +101,13 @@ header::after{
 .snapshot-box{
   background:linear-gradient(180deg,#071a33,#050f22);
   border-radius:16px;
-  padding:16px 18px;
-  box-shadow:0 0 28px rgba(0,180,255,.25);
+  padding:16px;
+  box-shadow:0 0 26px rgba(0,180,255,.25);
   border:1px solid rgba(255,255,255,.08);
 }
 
 .snapshot-title{
   font-weight:800;
-  font-size:15px;
   color:#ffe08a;
   margin-bottom:4px;
 }
@@ -127,9 +120,8 @@ header::after{
 
 .snapshot-form{
   display:grid;
-  grid-template-columns: 1fr 1fr auto auto;
+  grid-template-columns:1fr 1fr auto auto;
   gap:12px;
-  align-items:end;
 }
 
 .snapshot-form select{
@@ -139,7 +131,6 @@ header::after{
   border:none;
   background:#071a33;
   color:#fff;
-  font-size:14px;
 }
 
 .snapshot-form button{
@@ -151,19 +142,14 @@ header::after{
   white-space:nowrap;
 }
 
-.btn-lock{
-  background:#f4b400;
-  color:#000;
-}
-
+.btn-lock{background:#f4b400;color:#000}
 .btn-laporan{
   background:linear-gradient(135deg,#0ea5e9,#0284c7);
   color:#fff;
-  box-shadow:0 0 12px rgba(14,165,233,.45);
 }
 
 .snapshot-status{
-  margin-top:16px;
+  margin-top:14px;
 }
 
 .snapshot-status table{
@@ -178,34 +164,67 @@ header::after{
   border-bottom:1px dashed rgba(255,255,255,.15);
 }
 
-.snapshot-status th{
-  color:#9ecbff;
-  text-align:left;
-}
+.snapshot-status th{color:#9ecbff}
 
 /* =====================================================
-   FILTER KECAMATAN (TIDAK KE PINGGIR)
+   FILTER KECAMATAN
 ===================================================== */
-.container select{
+#filterKec{
   width:100%;
   padding:10px;
   border-radius:10px;
   border:none;
-  font-size:15px;
   background:#071a33;
   color:#fff;
   margin-bottom:12px;
 }
 
 /* =====================================================
-   MAP (CENTER & TIDAK MELEBAR)
+   MAP (LEAFLET AMAN)
 ===================================================== */
 #map{
   width:100%;
   height:65vh;
   border-radius:16px;
   box-shadow:0 0 20px #000;
-  margin:auto;
+}
+
+/* JANGAN RUSAK LEAFLET */
+.leaflet-container *{
+  box-sizing:content-box;
+}
+
+/* =====================================================
+   MARKER BARTIM + LABEL DESA
+===================================================== */
+.marker-bartim{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.marker-bartim img{
+  width:32px;
+  height:32px;
+  filter:drop-shadow(0 0 6px rgba(0,180,255,.6));
+}
+
+.marker-label{
+  margin-bottom:6px;
+  padding:4px 8px;
+  background:rgba(5,15,34,.85);
+  color:#e0f7ff;
+  font-size:11px;
+  font-weight:600;
+  border-radius:10px;
+  white-space:nowrap;
+  box-shadow:0 4px 10px rgba(0,0,0,.6);
+}
+
+.marker-kilat{
+  font-size:13px;
+  color:#ffd700;
+  text-shadow:0 0 8px rgba(255,215,0,.9);
 }
 
 /* =====================================================
@@ -216,30 +235,15 @@ header::after{
   padding:16px;
   border-radius:16px;
   background:linear-gradient(135deg,#071a33,#050f22);
-  box-shadow:0 0 25px rgba(0,180,255,.2);
   text-align:center;
 }
 
-.summary-title{
-  font-size:14px;
-  color:#9ecbff;
-  margin-bottom:6px;
-}
-
-.summary-value{
-  font-size:26px;
-  font-weight:900;
-  color:#00e5ff;
-}
-
-.summary-sub{
-  margin-top:6px;
-  font-size:12px;
-  color:#c7eaff;
-}
+.summary-title{color:#9ecbff;font-size:14px}
+.summary-value{font-size:26px;font-weight:900;color:#00e5ff}
+.summary-sub{font-size:12px;color:#c7eaff}
 
 /* =====================================================
-   TABLE (CENTER FIX)
+   TABLE
 ===================================================== */
 .box-table{
   margin-top:18px;
@@ -248,22 +252,15 @@ header::after{
   padding:14px;
 }
 
-.table-title{
-  font-weight:700;
-  color:#9ecbff;
-  margin-bottom:10px;
-}
+.table-title{font-weight:700;color:#9ecbff;margin-bottom:10px}
 
-.table-scroll{
-  max-height:45vh;
-  overflow:auto;
-}
+.table-scroll{max-height:45vh;overflow:auto}
 
 table{
   width:100%;
+  font-size:13px;
   border-collapse:separate;
   border-spacing:0;
-  font-size:13px;
 }
 
 th,td{
@@ -279,7 +276,7 @@ th{
 }
 
 /* =====================================================
-   PANEL DETAIL (AMAN & STABIL)
+   PANEL DETAIL (VIEW & EDIT STABIL)
 ===================================================== */
 #panel{
   position:absolute;
@@ -295,9 +292,7 @@ th{
   flex-direction:column;
 }
 
-#panel[style*="display: block"]{
-  display:flex !important;
-}
+#panel.show{display:flex}
 
 .panel-header{
   display:flex;
@@ -307,45 +302,45 @@ th{
   padding-bottom:8px;
 }
 
-.panel-title{
-  font-weight:700;
-  color:#ffe08a;
-}
+.panel-title{font-weight:700;color:#ffe08a}
 
 .panel-body{
+  margin-top:10px;
   flex:1;
   overflow-y:auto;
   background:rgba(0,0,0,.35);
   border-radius:12px;
   padding:12px;
-  border:1px solid rgba(255,255,255,.12);
 }
+
+.view-only{display:block}
+.edit-only{display:none}
+
+#panel.edit-mode .view-only{display:none}
+#panel.edit-mode .edit-only{display:block}
 
 .panel-footer{
   margin-top:10px;
   padding-top:10px;
   border-top:1px solid rgba(255,255,255,.15);
+  text-align:center;
   font-size:11px;
   color:#9ecbff;
-  text-align:center;
 }
 
 /* =====================================================
    RESPONSIVE
 ===================================================== */
 @media(max-width:900px){
-  .snapshot-form{
-    grid-template-columns:1fr 1fr;
-  }
+  .snapshot-form{grid-template-columns:1fr 1fr}
 }
 
 @media(max-width:520px){
-  .snapshot-form{
-    grid-template-columns:1fr;
-  }
+  .snapshot-form{grid-template-columns:1fr}
 }
 
 @media(max-width:768px){
+  .header-inner{flex-direction:column}
   #panel{
     top:auto;
     bottom:0;
@@ -355,51 +350,9 @@ th{
     max-height:55vh;
     border-radius:18px 18px 0 0;
   }
-
-  .header-inner{
-    flex-direction:column;
-    gap:6px;
-  }
 }
-   /* ================= PANEL MODE FIX ================= */
-#panel{
-  display:none;
-  flex-direction:column;
-}
-
-#panel.show{
-  display:flex;
-}
-
-/* mode view & edit kembali normal */
-.view-only{ display:block; }
-.edit-only{ display:none; }
-
-#panel.edit-mode .view-only{ display:none; }
-#panel.edit-mode .edit-only{ display:block; }
-/* ================= LEAFLET MARKER LOCK ================= */
-.leaflet-marker-icon,
-.leaflet-marker-shadow{
-  box-sizing:content-box !important;
-}
-
-/* icon bartim */
-.marker-bartim img{
-  width:32px !important;
-  height:32px !important;
-}
-
-/* label desa */
-.marker-label{
-  font-size:11px;
-  padding:4px 8px;
-  border-radius:10px;
-  background:rgba(5,15,34,.85);
-  color:#e0f7ff;
-  white-space:nowrap;
-}
-
 </style>
+
 
 </head>
 
