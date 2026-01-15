@@ -98,6 +98,70 @@ header::after{
   }
 }
 
+/* ===== SNAPSHOT BOX ===== */
+.snapshot-box{
+  margin-bottom:14px;
+  padding:16px;
+  border-radius:16px;
+  background:linear-gradient(180deg,#071a33,#050f22);
+  box-shadow:0 0 25px rgba(244,180,0,.25);
+}
+
+.snapshot-title{
+  font-weight:800;
+  color:#ffe08a;
+  letter-spacing:.5px;
+  margin-bottom:4px;
+}
+
+.snapshot-desc{
+  font-size:12px;
+  color:#9ecbff;
+  margin-bottom:12px;
+}
+
+.snapshot-form{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:14px;
+}
+
+.snapshot-form select{
+  flex:1;
+  min-width:160px;
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  background:#071a33;
+  color:#fff;
+}
+
+.snapshot-form button{
+  padding:10px 16px;
+  border:none;
+  border-radius:10px;
+  background:#f4b400;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.snapshot-status table{
+  width:100%;
+  font-size:12px;
+  border-collapse:collapse;
+}
+
+.snapshot-status th,
+.snapshot-status td{
+  padding:8px;
+  border-bottom:1px dashed rgba(255,255,255,.15);
+}
+
+.snapshot-status th{
+  color:#9ecbff;
+  text-align:left;
+}
 
 /* ================= CONTAINER ================= */
 .container{
@@ -116,6 +180,20 @@ select{
   background:#071a33;
   color:#fff;
   margin-bottom:12px;
+}
+.btn-laporan{
+  padding:10px 16px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(135deg,#0ea5e9,#0284c7);
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 0 12px rgba(14,165,233,.45);
+}
+
+.btn-laporan:hover{
+  background:linear-gradient(135deg,#38bdf8,#0284c7);
 }
 
 /* ================= MAP ================= */
@@ -487,6 +565,63 @@ th{
   </div>
 </header>
 
+<div class="snapshot-box">
+
+  <div class="snapshot-title">
+    🔐 Kunci Data Laporan Rasio Elektrifikasi
+  </div>
+
+  <div class="snapshot-desc">
+    Digunakan untuk mengunci data resmi per triwulan sebagai dasar laporan.
+  </div>
+
+  <div class="snapshot-form">
+
+    <select id="snapTriwulan">
+      <option value="">— Pilih Triwulan —</option>
+      <option value="I">Triwulan I</option>
+      <option value="II">Triwulan II</option>
+      <option value="III">Triwulan III</option>
+      <option value="IV">Triwulan IV</option>
+    </select>
+
+    <select id="snapTahun">
+      <option value="">— Pilih Tahun —</option>
+      <option value="2025">2025</option>
+      <option value="2026">2026</option>
+      <option value="2027">2027</option>
+      <option value="2028">2028</option>
+    </select>
+
+    <button onclick="kunciSnapshot()">🔐 Kunci Laporan</button>
+<button class="btn-laporan" onclick="goLaporan()">
+  📄 Buka Halaman Laporan
+</button>
+
+  </div>
+
+  <div class="snapshot-status">
+    <strong>Riwayat Snapshot Terkunci</strong>
+    <table>
+      <thead>
+        <tr>
+          <th>Triwulan</th>
+          <th>Tahun</th>
+          <th>Status</th>
+          <th>Waktu</th>
+        </tr>
+      </thead>
+      <tbody id="snapshotTable">
+        <tr>
+          <td colspan="4" style="text-align:center;opacity:.6">
+            Belum ada snapshot
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
 
 <div class="container">
   <select id="filterKec">
@@ -637,6 +772,60 @@ th{
 /* ================== CONFIG ================== */
 const API_URL =
 "https://script.google.com/macros/s/AKfycbxa-soCZiiqGB86ND1s5tKaIBwHSz0OGmv9OgJoDXYLKS1DvgcGy6e1sInZI3JD0oSm/exec";
+
+const snapshotData = []; // nanti diganti dari API
+
+function kunciSnapshot(){
+  const triwulan = snapTriwulan.value;
+  const tahun    = snapTahun.value;
+
+  if(!triwulan || !tahun){
+    alert("Pilih Triwulan dan Tahun");
+    return;
+  }
+
+  // CEK DUPLIKAT
+  const ada = snapshotData.find(
+    s => s.triwulan===triwulan && s.tahun===tahun
+  );
+  if(ada){
+    alert("⚠️ Periode ini sudah dikunci");
+    return;
+  }
+
+  const pin = prompt(
+    `Masukkan PIN Snapshot\nTriwulan ${triwulan} ${tahun}`
+  );
+  if(!pin) return;
+
+  // simulasi berhasil
+  snapshotData.push({
+    triwulan,
+    tahun,
+    waktu: new Date().toLocaleString("id-ID")
+  });
+
+  renderSnapshotTable();
+  alert("✅ Snapshot laporan berhasil dikunci");
+}
+
+function renderSnapshotTable(){
+  const tb = document.getElementById("snapshotTable");
+  tb.innerHTML = "";
+
+  snapshotData.forEach(s=>{
+    tb.innerHTML += `
+      <tr>
+        <td>Triwulan ${s.triwulan}</td>
+        <td>${s.tahun}</td>
+        <td style="color:#00e5ff;font-weight:700">TERKUNCI</td>
+        <td>${s.waktu}</td>
+      </tr>`;
+  });
+}
+  function goLaporan(){
+  window.location.href = "laporan.html";
+}
 
 /* ================= MAP ================= */
 const map = L.map("map",{maxZoom:20}).setView([-2.1,115.1],8);
