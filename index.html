@@ -565,27 +565,30 @@ panel.classList.remove("show");   // ← INI YANG BENAR
   summaryValue.innerText = rasioKab+"%";
   summarySub.innerText = `RT PLN: ${sumPln} | Total RT: ${sumTotal}`;
 }
+const pNonPlnPersen = document.getElementById("pNonPlnPersen");
+const pTidakPersen  = document.getElementById("pTidakPersen");
 
 /* ================= PANEL VIEW ================= */
 function show(d){
   selected = d;
 
-  pKec.innerText = d.kecamatan;
+  pKec.innerText   = d.kecamatan;
   pTitle.innerText = d.nama_wilayah;
-  pPln.innerText = d.rt_pln;
-  pNon.innerText = d.rt_non_pln;
-  pNonListrik.innerText = d.rt_non_listrik;
-  pJml.innerText = d.jumlah;
 
-  pPlnPersen.innerText = fmtPercent(d.persen_pln);
+  pPln.innerText        = d.rt_pln;
+  pNon.innerText        = d.rt_non_pln;
+  pNonListrik.innerText = d.rt_non_listrik;
+  pJml.innerText        = d.jumlah;
+
+  pPlnPersen.innerText    = fmtPercent(d.persen_pln);
   pNonPlnPersen.innerText = fmtPercent(d.persen_non_pln);
-  pTidakPersen.innerText = fmtPercent(d.persen_tidak_berlistrik);
+  pTidakPersen.innerText  = fmtPercent(d.persen_tidak_berlistrik);
 
   pUpdated.innerText = d.updated_at || "2025";
 
   panel.style.display = "block";
-  panel.classList.add("show");
 }
+
 
 
 /* ================= UTIL ================= */
