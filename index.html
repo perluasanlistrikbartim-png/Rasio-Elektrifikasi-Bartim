@@ -361,6 +361,44 @@ th{
     gap:6px;
   }
 }
+   /* ================= PANEL MODE FIX ================= */
+#panel{
+  display:none;
+  flex-direction:column;
+}
+
+#panel.show{
+  display:flex;
+}
+
+/* mode view & edit kembali normal */
+.view-only{ display:block; }
+.edit-only{ display:none; }
+
+#panel.edit-mode .view-only{ display:none; }
+#panel.edit-mode .edit-only{ display:block; }
+/* ================= LEAFLET MARKER LOCK ================= */
+.leaflet-marker-icon,
+.leaflet-marker-shadow{
+  box-sizing:content-box !important;
+}
+
+/* icon bartim */
+.marker-bartim img{
+  width:32px !important;
+  height:32px !important;
+}
+
+/* label desa */
+.marker-label{
+  font-size:11px;
+  padding:4px 8px;
+  border-radius:10px;
+  background:rgba(5,15,34,.85);
+  color:#e0f7ff;
+  white-space:nowrap;
+}
+
 </style>
 
 </head>
@@ -815,8 +853,9 @@ function show(d){
   eTitle.innerText=d.nama_wilayah;
   eJml.innerText=d.jumlah;
 
-  panel.classList.remove("edit-mode");
-  panel.style.display="block";
+  panel.classList.add("show");
+panel.classList.remove("edit-mode");
+
 }
 
 /* ================= EDIT BY PIN ================= */
