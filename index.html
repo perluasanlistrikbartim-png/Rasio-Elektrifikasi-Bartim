@@ -138,69 +138,106 @@ th{
   color:#7dd3fc;
 }
 
-/* ================= PANEL ================= */
+/* ===== PANEL INFO (STYLE JEMBATAN) ===== */
 #panel{
-  position: fixed;
-  top: 100px;
-  right: 20px;
-  width: 360px;
-  max-height: calc(100vh - 140px);
-  background: linear-gradient(180deg,#071a33,#050f22);
-  border-radius: 18px;
-  padding: 14px 16px 18px;
-  box-shadow: 0 20px 40px rgba(0,0,0,.45);
-  display: none;
-  z-index: 999;
-  overflow-y: auto;
+  position:absolute;
+  top:110px;
+  right:20px;
+  width:340px;
+  background:linear-gradient(180deg,#071a33,#050f22);
+  border-radius:16px;
+  padding:14px 14px 18px;
+  box-shadow:0 10px 30px rgba(0,0,0,.85);
+  display:none;
+  z-index:999;
+  animation:slideIn .25s ease;
+  max-height:75vh;
+  overflow-y:auto;
 }
 
-/* MOBILE */
-@media (max-width:768px){
+/* animasi masuk */
+@keyframes slideIn{
+  from{transform:translateX(20px);opacity:0}
+  to{transform:translateX(0);opacity:1}
+}
+
+/* ===== HEADER PANEL ===== */
+.panel-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:10px;
+  padding-bottom:8px;
+  border-bottom:1px solid rgba(244,180,0,.4);
+}
+
+.panel-title{
+  font-weight:700;
+  font-size:14px;
+  color:#ffe08a;
+  letter-spacing:.6px;
+}
+
+.panel-close{
+  background:none;
+  border:none;
+  color:#fff;
+  font-size:22px;
+  cursor:pointer;
+  line-height:1;
+}
+
+/* ===== INNER CARD (INI YANG ANDA MAKSUD) ===== */
+.panel-body{
+  background:rgba(0,0,0,.35);
+  border-radius:12px;
+  padding:12px;
+  border:1px solid rgba(255,255,255,.12);
+}
+
+/* ===== INFO BLOCK ===== */
+.info-block{
+  margin-bottom:8px;
+  padding-bottom:6px;
+  border-bottom:1px dashed rgba(255,255,255,.1);
+}
+
+.label{
+  font-size:11px;
+  color:#9ecbff;
+  letter-spacing:.4px;
+  margin-bottom:2px;
+}
+
+.value{
+  font-weight:600;
+  font-size:14px;
+  line-height:1.35;
+  color:#ffffff;
+}
+
+/* ===== BUTTON ===== */
+#panel button{
+  width:100%;
+  margin-top:12px;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:#f4b400;
+  font-weight:700;
+  cursor:pointer;
+}
+
+/* ===== MOBILE MODE (SAMA PERSIS JEMBATAN) ===== */
+@media(max-width:768px){
   #panel{
+    top:auto;
+    bottom:0;
     left:0;
     right:0;
-    top:auto;
-    bottom:-100%;
     width:100%;
     max-height:55vh;
     border-radius:18px 18px 0 0;
-    transition:bottom .35s ease;
-  }
-  #panel.show{
-    bottom:0;
-  }
-}
-
-/* HEADER */
-.panel-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:8px;
-}
-.panel-title{
-  font-weight:700;
-  color:#7dd3fc;
-}
-.panel-close{
-  cursor:pointer;
-  font-size:18px;
-  color:#9ecbff;
-}
-
-/* DRAG */
-.panel-drag{
-  display:none;
-}
-@media (max-width:768px){
-  .panel-drag{
-    display:block;
-    width:40px;
-    height:4px;
-    background:#7dd3fc;
-    border-radius:4px;
-    margin:0 auto 8px;
-    opacity:.6;
   }
 }
 
@@ -326,28 +363,59 @@ th{
 
 <!-- PANEL DETAIL -->
 <div id="panel">
-  <div class="panel-drag"></div>
 
   <div class="panel-header">
     <div class="panel-title">Detail Desa</div>
-    <div class="panel-close" onclick="closePanel()">✕</div>
+    <button class="panel-close" onclick="closePanel()">✕</button>
   </div>
 
-  <div class="info-block"><div class="label">Kecamatan</div><div class="value" id="pKec"></div></div>
-  <div class="info-block"><div class="label">Desa/Kelurahan</div><div class="value" id="pTitle"></div></div>
+  <div class="panel-body">
 
-  <div class="info-block"><div class="label">RT PLN</div><div class="value" id="pPln"></div></div>
-  <div class="info-block"><div class="label">RT Non PLN</div><div class="value" id="pNon"></div></div>
-  <div class="info-block"><div class="label">RT Non Listrik</div><div class="value" id="pNonListrik"></div></div>
+    <div class="info-block">
+      <div class="label">Kecamatan</div>
+      <div class="value" id="pKec"></div>
+    </div>
 
-  <div class="info-block"><div class="label">Jumlah RT</div><div class="value" id="pJml"></div></div>
-  <div class="info-block"><div class="label">% PLN</div><div class="value" id="pPlnPersen"></div></div>
-  <div class="info-block"><div class="label">% Non PLN</div><div class="value" id="pNonPlnPersen"></div></div>
-  <div class="info-block"><div class="label">% Tidak Berlistrik</div><div class="value" id="pTidakPersen"></div></div>
-  <div class="info-block"><div class="label">Updated</div><div class="value" id="pUpdated"></div></div>
+    <div class="info-block">
+      <div class="label">Desa / Kelurahan</div>
+      <div class="value" id="pTitle"></div>
+    </div>
 
-  <button onclick="editData()">✏️ Edit Data</button>
+    <div class="info-block">
+      <div class="label">RT PLN</div>
+      <div class="value" id="pPln"></div>
+    </div>
+
+    <div class="info-block">
+      <div class="label">RT Non PLN</div>
+      <div class="value" id="pNon"></div>
+    </div>
+
+    <div class="info-block">
+      <div class="label">RT Non Listrik</div>
+      <div class="value" id="pNonListrik"></div>
+    </div>
+
+    <div class="info-block">
+      <div class="label">Jumlah RT</div>
+      <div class="value" id="pJml"></div>
+    </div>
+
+    <div class="info-block">
+      <div class="label">% PLN</div>
+      <div class="value" id="pPlnPersen"></div>
+    </div>
+
+    <div class="info-block">
+      <div class="label">Updated</div>
+      <div class="value" id="pUpdated"></div>
+    </div>
+
+    <button onclick="editData()">✏️ Edit Data</button>
+
+  </div>
 </div>
+
 
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
