@@ -399,6 +399,26 @@ th{
 .panel-footer .footer-actions button{
   flex:1;
 }
+/* ===== PANEL FOOTER WITH LOGO ===== */
+.panel-footer-inner{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+
+.panel-footer-logo{
+  width:26px;
+  height:26px;
+  object-fit:contain;
+  filter:drop-shadow(0 0 4px rgba(244,180,0,.6));
+}
+
+.panel-footer-text{
+  font-size:11px;
+  line-height:1.3;
+  color:#9ecbff;
+}
 
 </style>
 </head>
@@ -505,9 +525,15 @@ th{
     <button class="btn-action" onclick="editData()">✏️ Edit Data</button>
 
 <div class="panel-footer">
-  Sistem Informasi Rasio Elektrifikasi<br>
-  Kabupaten Barito Timur
+  <div class="panel-footer-inner">
+    <img src="bartim.png" alt="Bartim" class="panel-footer-logo">
+    <div class="panel-footer-text">
+      Sistem Informasi Rasio Elektrifikasi<br>
+      Kabupaten Barito Timur
+    </div>
+  </div>
 </div>
+
 
   </div>
 
