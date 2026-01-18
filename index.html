@@ -404,6 +404,59 @@ th{
     border-radius:18px 18px 0 0;
   }
 }
+   /* =====================================================
+   PANEL DETAIL – BARIS DATA RAPI (SISFO JEMBATAN STYLE)
+===================================================== */
+
+/* container tiap baris info */
+.panel-body .info-block{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+  padding:6px 4px;
+  border-bottom:1px solid rgba(0,180,255,.18);
+}
+
+/* hapus garis di baris terakhir */
+.panel-body .info-block:last-child{
+  border-bottom:none;
+}
+
+/* label kiri */
+.panel-body .info-block .label{
+  font-size:11px;
+  color:#7dd3fc;              /* biru cerah */
+  flex:0 0 55%;
+}
+
+/* value kanan */
+.panel-body .info-block .value{
+  font-size:12px;
+  font-weight:600;
+  color:#e0f7ff;              /* putih kebiruan */
+  text-align:right;
+  flex:1;
+}
+
+/* angka penting (opsional lebih tegas) */
+.panel-body .info-block .value strong{
+  color:#00e5ff;
+}
+
+/* tombol edit lebih rapi */
+.panel-body .btn-action{
+  margin-top:10px;
+  width:100%;
+  padding:8px;
+  border:none;
+  border-radius:10px;
+  font-weight:700;
+  cursor:pointer;
+  background:linear-gradient(135deg,#0ea5e9,#0284c7);
+  color:#fff;
+}
+
 </style>
 
 
