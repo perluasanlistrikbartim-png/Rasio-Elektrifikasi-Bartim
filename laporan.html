@@ -3,135 +3,211 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Laporan Rasio Elektrifikasi – Kabupaten Barito Timur</title>
+<title>Laporan Resmi Rasio Elektrifikasi – Kabupaten Barito Timur</title>
 
 <style>
-/* ================= BASIC ================= */
-body{
+/* =====================================================
+   RESET & THEME (SAMA DENGAN INDEX)
+===================================================== */
+html,body{
   margin:0;
+  padding:0;
   background:#020216;
   color:#e0f7ff;
-  font-family:Segoe UI, sans-serif;
+  font-family:Segoe UI, Arial, sans-serif;
 }
 
-/* ================= HEADER ================= */
+/* =====================================================
+   HEADER + ANIMASI KILAT
+===================================================== */
 header{
   background:#000814;
   border-bottom:3px solid #f4b400;
-  padding:14px 18px;
+  position:relative;
+  overflow:hidden;
 }
+
+header::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(
+    120deg,
+    transparent 30%,
+    rgba(255,255,255,.2),
+    transparent 70%
+  );
+  transform:translateX(-120%);
+  animation:kilat 6s infinite;
+}
+
+@keyframes kilat{
+  0%,85%{transform:translateX(-120%)}
+  100%{transform:translateX(120%)}
+}
+
 .header-inner{
   max-width:1200px;
   margin:auto;
+  padding:14px 16px;
   display:flex;
   align-items:center;
-  gap:16px;
+  justify-content:center;
+  gap:14px;
 }
+
 .header-logo img{
-  height:48px;
+  height:46px;
+  filter:drop-shadow(0 0 6px rgba(244,180,0,.6));
 }
+
+.header-title{
+  text-align:center;
+}
+
 .header-title h1{
   margin:0;
-  font-size:1.6rem;
+  font-size:1.4rem;
   font-weight:800;
+  color:#fff;
 }
+
 .header-title span{
   font-size:13px;
   color:#ffe08a;
 }
 
-/* ================= CONTAINER ================= */
+/* =====================================================
+   CONTAINER
+===================================================== */
 .container{
   max-width:1200px;
   margin:auto;
-  padding:14px;
+  padding:16px;
 }
 
-/* ================= FILTER LAPORAN ================= */
-.laporan-filter{
+/* =====================================================
+   FILTER LAPORAN
+===================================================== */
+.filter-box{
   background:linear-gradient(180deg,#071a33,#050f22);
   border-radius:16px;
   padding:16px;
+  box-shadow:0 0 22px rgba(0,180,255,.25);
+  border:1px solid rgba(255,255,255,.08);
+  margin-bottom:18px;
+}
+
+.filter-box h3{
+  margin:0 0 10px;
+  color:#ffe08a;
+}
+
+.filter-form{
   display:grid;
   grid-template-columns:1fr 1fr auto;
   gap:12px;
-  margin-bottom:16px;
 }
-.laporan-filter select,
-.laporan-filter button{
+
+.filter-form select,
+.filter-form button{
   padding:10px;
   border-radius:10px;
   border:none;
-  font-size:14px;
-}
-.laporan-filter select{
   background:#071a33;
   color:#fff;
 }
-.laporan-filter button{
+
+.filter-form button{
   background:#f4b400;
+  color:#000;
   font-weight:800;
   cursor:pointer;
 }
 
-/* ================= INFO ================= */
-.laporan-info{
-  font-size:13px;
-  color:#9ecbff;
-  margin-bottom:10px;
+/* =====================================================
+   INFO SNAPSHOT
+===================================================== */
+.info-box{
+  text-align:center;
+  margin-bottom:14px;
 }
 
-/* ================= TABLE ================= */
+.info-box .title{
+  font-size:14px;
+  color:#9ecbff;
+}
+
+.info-box .value{
+  font-size:22px;
+  font-weight:900;
+  color:#00e5ff;
+}
+
+/* =====================================================
+   TABLE LAPORAN
+===================================================== */
 .box-table{
   background:linear-gradient(180deg,#071a33,#050f22);
   border-radius:18px;
   padding:14px;
 }
-.table-title{
-  font-weight:800;
-  color:#ffe08a;
-  margin-bottom:10px;
-}
+
 .table-scroll{
-  max-height:65vh;
+  max-height:60vh;
   overflow:auto;
 }
+
 table{
   width:100%;
-  border-collapse:collapse;
+  border-collapse:separate;
+  border-spacing:0;
   font-size:13px;
 }
+
 th,td{
   padding:8px 10px;
-  border-bottom:1px solid rgba(255,255,255,.15);
-}
-th{
-  background:#0b2442;
-  color:#7dd3fc;
-  position:sticky;
-  top:0;
+  border-bottom:1px solid rgba(0,180,255,.3);
 }
 
-/* ================= FOOTER ================= */
-.footer{
-  margin-top:30px;
-  border-top:3px solid #f4b400;
-  background:#000814;
+th{
+  position:sticky;
+  top:0;
+  background:#0b2442;
+  color:#7dd3fc;
 }
+
+tfoot td{
+  font-weight:800;
+  color:#ffe08a;
+}
+
+/* =====================================================
+   FOOTER
+===================================================== */
+footer{
+  margin-top:30px;
+  padding:16px;
+  background:#000814;
+  border-top:2px solid #f4b400;
+}
+
 .footer-inner{
   max-width:1200px;
   margin:auto;
-  padding:16px;
-  text-align:center;
-  font-size:12px;
-  color:#9ecbff;
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:10px;
 }
 
-/* ================= RESPONSIVE ================= */
-@media(max-width:768px){
-  .laporan-filter{
-    grid-template-columns:1fr;
-  }
+.footer-title{
+  font-weight:700;
+}
+
+.footer-sub{
+  font-size:12px;
+  color:#9ecbff;
 }
 </style>
 </head>
@@ -141,10 +217,10 @@ th{
 <header>
   <div class="header-inner">
     <div class="header-logo">
-      <img src="bartim.png">
+      <img src="bartim.png" alt="Bartim">
     </div>
     <div class="header-title">
-      <h1>Laporan Rasio Elektrifikasi</h1>
+      <h1>Laporan Resmi Rasio Elektrifikasi</h1>
       <span>Kabupaten Barito Timur</span>
     </div>
   </div>
@@ -153,125 +229,140 @@ th{
 <div class="container">
 
   <!-- FILTER -->
-  <div class="laporan-filter">
-    <select id="tahun">
-      <option value="">Pilih Tahun</option>
-    </select>
-
-    <select id="triwulan">
-      <option value="">Pilih Triwulan</option>
-      <option value="I">Triwulan I</option>
-      <option value="II">Triwulan II</option>
-      <option value="III">Triwulan III</option>
-      <option value="IV">Triwulan IV</option>
-    </select>
-
-    <button onclick="loadLaporan()">📄 Tampilkan</button>
+  <div class="filter-box">
+    <h3>📄 Pilih Periode Laporan (Snapshot)</h3>
+    <div class="filter-form">
+      <select id="tahun">
+        <option value="">— Tahun —</option>
+        <option>2025</option>
+        <option>2026</option>
+        <option>2027</option>
+      </select>
+      <select id="triwulan">
+        <option value="">— Triwulan —</option>
+        <option value="I">Triwulan I</option>
+        <option value="II">Triwulan II</option>
+        <option value="III">Triwulan III</option>
+        <option value="IV">Triwulan IV</option>
+      </select>
+      <button onclick="loadLaporan()">🔍 Tampilkan</button>
+    </div>
   </div>
 
-  <div class="laporan-info" id="info"></div>
+  <!-- INFO -->
+  <div class="info-box" id="info" style="display:none">
+    <div class="title" id="infoTitle"></div>
+    <div class="value" id="infoValue"></div>
+  </div>
 
-  <!-- TABEL -->
+  <!-- TABLE -->
   <div class="box-table">
-    <div class="table-title">📊 Data Snapshot Rasio Elektrifikasi</div>
     <div class="table-scroll">
       <table id="tbl">
         <thead>
           <tr>
             <th>No</th>
             <th>Kecamatan</th>
-            <th>Desa / Kelurahan</th>
+            <th>Desa/Kelurahan</th>
             <th>RT PLN</th>
             <th>RT Non PLN</th>
-            <th>RT Non Listrik</th>
-            <th>Jumlah RT</th>
+            <th>RT Tidak Berlistrik</th>
+            <th>Jumlah</th>
             <th>% PLN</th>
             <th>% Non PLN</th>
             <th>% Tidak Berlistrik</th>
-            <th>Updated</th>
           </tr>
         </thead>
         <tbody></tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3">TOTAL</td>
+            <td id="tPln"></td>
+            <td id="tNon"></td>
+            <td id="tTidak"></td>
+            <td id="tJml"></td>
+            <td colspan="3"></td>
+          </tr>
+        </tfoot>
       </table>
     </div>
   </div>
 
 </div>
 
-<footer class="footer">
+<footer>
   <div class="footer-inner">
-    Sistem Informasi Rasio Elektrifikasi – Kabupaten Barito Timur
+    <div>
+      <div class="footer-title">WebGIS Rasio Elektrifikasi</div>
+      <div class="footer-sub">
+        DPUPRPERKIM Kabupaten Barito Timur<br>
+        Sekretariat Daerah Kabupaten Barito Timur
+      </div>
+    </div>
+    <div class="footer-sub">
+      © 2025 – Laporan Resmi (Snapshot Terkunci)
+    </div>
   </div>
 </footer>
 
 <script>
 /* ================= CONFIG ================= */
-const API_URL =
-"https://script.google.com/macros/s/AKfycbxa-soCZiiqGB86ND1s5tKaIBwHSz0OGmv9OgJoDXYLKS1DvgcGy6e1sInZI3JD0oSm/exec";
-
-/* ================= INIT ================= */
-const tahunSel = document.getElementById("tahun");
-const triSel   = document.getElementById("triwulan");
-const tbody    = document.querySelector("#tbl tbody");
-const infoBox  = document.getElementById("info");
-
-/* isi tahun mulai 2025 */
-const now = new Date().getFullYear();
-for(let y=2025;y<=now+1;y++){
-  const o=document.createElement("option");
-  o.value=y; o.textContent=y;
-  tahunSel.appendChild(o);
-}
+const API_URL = "PASTE_URL_GAS_KAMU_DI_SINI";
 
 /* ================= LOAD LAPORAN ================= */
 function loadLaporan(){
-  const tahun = tahunSel.value;
-  const tri   = triSel.value;
-
-  if(!tahun || !tri){
-    alert("Pilih tahun dan triwulan");
+  const tahun = document.getElementById("tahun").value;
+  const triwulan = document.getElementById("triwulan").value;
+  if(!tahun || !triwulan){
+    alert("Pilih tahun & triwulan");
     return;
   }
 
-  tbody.innerHTML="";
-  infoBox.innerText="Memuat data laporan...";
-
-  fetch(`${API_URL}?action=getLaporan&tahun=${tahun}&triwulan=${tri}`)
+  fetch(`${API_URL}?action=getLaporan&tahun=${tahun}&triwulan=${triwulan}`)
   .then(r=>r.json())
   .then(res=>{
-    if(res.status!=="ok" || !res.data.length){
-      infoBox.innerText="⚠️ Snapshot belum tersedia untuk periode ini.";
+    if(res.status!=="ok"){
+      alert(res.message || "Data tidak ditemukan");
       return;
     }
 
-    infoBox.innerText =
-      `Menampilkan Laporan Triwulan ${tri} Tahun ${tahun}
-       (Dikunci: ${res.data[0].waktu_kunci || "-"})`;
+    const tb = document.querySelector("#tbl tbody");
+    tb.innerHTML="";
+
+    let sPln=0,sNon=0,sTidak=0,sJml=0;
 
     res.data.forEach((d,i)=>{
-      const tr=document.createElement("tr");
-      tr.innerHTML=`
-        <td>${i+1}</td>
-        <td>${d.kecamatan}</td>
-        <td>${d.nama_wilayah}</td>
-        <td>${d.rt_pln}</td>
-        <td>${d.rt_non_pln}</td>
-        <td>${d.rt_non_listrik}</td>
-        <td>${d.jumlah}</td>
-        <td>${fmt(d.persen_pln)}</td>
-        <td>${fmt(d.persen_non_pln)}</td>
-        <td>${fmt(d.persen_tidak_berlistrik)}</td>
-        <td>${d.updated_at||""}</td>`;
-      tbody.appendChild(tr);
-    });
-  });
-}
+      sPln+=+d.rt_pln;
+      sNon+=+d.rt_non_pln;
+      sTidak+=+d.rt_non_listrik;
+      sJml+=+d.jumlah;
 
-/* ================= UTIL ================= */
-function fmt(v){
-  if(v===null||v==="") return "0.00%";
-  if(String(v).includes("%")) return v;
-  return (Number(v)*100).toFixed(2)+"%";
+      tb.innerHTML+=`
+        <tr>
+          <td>${i+1}</td>
+          <td>${d.kecamatan}</td>
+          <td>${d.desa}</td>
+          <td>${d.rt_pln}</td>
+          <td>${d.rt_non_pln}</td>
+          <td>${d.rt_non_listrik}</td>
+          <td>${d.jumlah}</td>
+          <td>${d.persen_pln}</td>
+          <td>${d.persen_non_pln}</td>
+          <td>${d.persen_tidak_berlistrik}</td>
+        </tr>`;
+    });
+
+    document.getElementById("tPln").innerText=sPln;
+    document.getElementById("tNon").innerText=sNon;
+    document.getElementById("tTidak").innerText=sTidak;
+    document.getElementById("tJml").innerText=sJml;
+
+    document.getElementById("info").style.display="block";
+    document.getElementById("infoTitle").innerText=
+      `Laporan Resmi Triwulan ${triwulan} Tahun ${tahun}`;
+    document.getElementById("infoValue").innerText=
+      `${res.total_desa} Desa/Kelurahan`;
+  });
 }
 </script>
 
