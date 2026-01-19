@@ -939,7 +939,6 @@ panel-footer-inner{
 const API_URL =
 "https://script.google.com/macros/s/AKfycbxa-soCZiiqGB86ND1s5tKaIBwHSz0OGmv9OgJoDXYLKS1DvgcGy6e1sInZI3JD0oSm/exec";
 
-const snapshotData = []; // nanti diganti dari API
 
 function kunciSnapshot(){
   const triwulan = snapTriwulan.value;
@@ -950,30 +949,65 @@ function kunciSnapshot(){
     return;
   }
 
-  // CEK DUPLIKAT
-  const ada = snapshotData.find(
-    s => s.triwulan===triwulan && s.tahun===tahun
-  );
-  if(ada){
-    alert("⚠️ Periode ini sudah dikunci");
-    return;
-  }
-
   const pin = prompt(
     `Masukkan PIN Snapshot\nTriwulan ${triwulan} ${tahun}`
   );
   if(!pin) return;
 
-  // simulasi berhasil
-  snapshotData.push({
-    triwulan,
-    tahun,
-    waktu: new Date().toLocaleString("id-ID")
-  });
+  fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"lockSnapshot",
+      tahun:tahun,
+      triwulan:triwulan,
+      pin:pin
+    })
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    if(res.status==="locked"){
+      alert("⚠️ "+res.message);
+      return;
+    }
+    if(res.status!=="ok"){
+      alert("❌ "+(res.message||"Gagal kunci"));
+      return;
+    }
 
-  renderSnapshotTable();
-  alert("✅ Snapshot laporan berhasil dikunci");
+    alert("✅ "+res.message);
+    loadSnapshotStatus(); // refresh dari GAS
+  });
 }
+   
+function loadSnapshotStatus(){
+  fetch(API_URL+"?action=getSnapshotStatus")
+  .then(r=>r.json())
+  .then(res=>{
+    const tb = document.getElementById("snapshotTable");
+    tb.innerHTML = "";
+
+    if(!res.data || res.data.length===0){
+      tb.innerHTML = `
+        <tr>
+          <td colspan="4" style="text-align:center;opacity:.6">
+            Belum ada snapshot
+          </td>
+        </tr>`;
+      return;
+    }
+
+    res.data.forEach(s=>{
+      tb.innerHTML += `
+        <tr>
+          <td>Triwulan ${s.triwulan}</td>
+          <td>${s.tahun}</td>
+          <td style="color:#00e5ff;font-weight:700">${s.status}</td>
+          <td>${new Date(s.waktu).toLocaleString("id-ID")}</td>
+        </tr>`;
+    });
+  });
+}
+
 
 function renderSnapshotTable(){
   const tb = document.getElementById("snapshotTable");
@@ -1229,6 +1263,9 @@ function fmt(v){
 
 /* ================= PANEL ================= */
 function closePanel(){panel.style.display="none"}
+
+   loadSnapshotStatus();
+
 </script>
 
 
