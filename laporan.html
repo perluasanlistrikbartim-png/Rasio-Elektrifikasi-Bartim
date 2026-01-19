@@ -260,30 +260,55 @@ footer{
     <div class="table-scroll">
       <table id="tbl">
         <thead>
-          <tr>
-            <th>No</th>
-            <th>Kecamatan</th>
-            <th>Desa/Kelurahan</th>
-            <th>RT PLN</th>
-            <th>RT Non PLN</th>
-            <th>RT Tidak Berlistrik</th>
-            <th>Jumlah</th>
-            <th>% PLN</th>
-            <th>% Non PLN</th>
-            <th>% Tidak Berlistrik</th>
-          </tr>
-        </thead>
+  <tr>
+    <th rowspan="2">No</th>
+    <th rowspan="2">Kecamatan</th>
+    <th rowspan="2">Desa / Kelurahan</th>
+
+    <th colspan="2">Desa / Kelurahan Berlistrik</th>
+    <th colspan="3">Rumah Tangga Berlistrik</th>
+
+    <th rowspan="2">Jumlah Rumah Tangga<br>Belum Berlistrik</th>
+    <th rowspan="2">Total Rumah Tangga</th>
+
+    <th rowspan="2">Rasio Elektrifikasi PLN</th>
+    <th rowspan="2">Rasio Elektrifikasi Non PLN</th>
+    <th rowspan="2">Rasio Elektrifikasi</th>
+    <th rowspan="2">% Rumah Tangga Tidak Berlistrik</th>
+    <th rowspan="2">Keterangan</th>
+  </tr>
+
+  <tr>
+    <th>PLN</th>
+    <th>Non PLN</th>
+
+    <th>PLN</th>
+    <th>Non PLN</th>
+    <th>Jumlah</th>
+  </tr>
+</thead>
+
+
+
         <tbody></tbody>
         <tfoot>
-          <tr>
-            <td colspan="3">TOTAL</td>
-            <td id="tPln"></td>
-            <td id="tNon"></td>
-            <td id="tTidak"></td>
-            <td id="tJml"></td>
-            <td colspan="3"></td>
-          </tr>
-        </tfoot>
+  <tr>
+    <td colspan="3">TOTAL</td>
+
+    <td>-</td>
+    <td>-</td>
+
+    <td id="tPln"></td>
+    <td id="tNon"></td>
+    <td id="tBerlistrik"></td>
+
+    <td id="tTidak"></td>
+    <td id="tJml"></td>
+    <td></td>
+  </tr>
+</tfoot>
+
+
       </table>
     </div>
   </div>
@@ -347,34 +372,43 @@ function loadLaporan(){
     const tb = document.querySelector("#tbl tbody");
     tb.innerHTML="";
 
-    let sPln=0,sNon=0,sTidak=0,sJml=0;
+    let sPln=0, sNon=0, sBerlistrik=0, sTidak=0, sJml=0;
 
     res.data.forEach((d,i)=>{
-      sPln+=+d.rt_pln;
-      sNon+=+d.rt_non_pln;
-      sTidak+=+d.rt_non_listrik;
-      sJml+=+d.jumlah;
+  const rtBerlistrik = (+d.rt_pln || 0) + (+d.rt_non_pln || 0);
 
-     tb.innerHTML += `
-  <tr>
-    <td>${i+1}</td>
-    <td>${d.kecamatan}</td>
-    <td>${d.desa}</td>
-    <td>${d.rt_pln}</td>
-    <td>${d.rt_non_pln}</td>
-    <td>${d.rt_non_listrik}</td>
-    <td>${d.jumlah}</td>
-    <td>${formatPersen(d.persen_pln)}</td>
-    <td>${formatPersen(d.persen_non_pln)}</td>
-    <td>${formatPersen(d.persen_tidak_berlistrik)}</td>
-  </tr>`;
+  sPln += +d.rt_pln || 0;
+  sNon += +d.rt_non_pln || 0;
+  sBerlistrik += rtBerlistrik;
+  sTidak += +d.rt_non_listrik || 0;
+  sJml += +d.jumlah || 0;
 
-    });
+  tb.innerHTML += `
+<tr>
+  <td>${i+1}</td>
+  <td>${d.kecamatan}</td>
+  <td>${d.desa}</td>
 
-    document.getElementById("tPln").innerText=sPln;
-    document.getElementById("tNon").innerText=sNon;
-    document.getElementById("tTidak").innerText=sTidak;
-    document.getElementById("tJml").innerText=sJml;
+  <td>${d.desa_pln || "-"}</td>
+  <td>${d.desa_non_pln || "-"}</td>
+
+  <td>${d.rt_pln}</td>
+  <td>${d.rt_non_pln}</td>
+  <td>${rtBerlistrik}</td>
+
+  <td>${d.rt_non_listrik}</td>
+  <td>${d.jumlah}</td>
+  <td></td>
+</tr>`;
+
+});
+
+
+    document.getElementById("tPln").innerText = sPln;
+document.getElementById("tNon").innerText = sNon;
+document.getElementById("tBerlistrik").innerText = sBerlistrik;
+document.getElementById("tTidak").innerText = sTidak;
+document.getElementById("tJml").innerText = sJml;
 
     document.getElementById("info").style.display="block";
     document.getElementById("infoTitle").innerText=
