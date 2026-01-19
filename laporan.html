@@ -311,11 +311,20 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxa-soCZiiqGB86ND1s5tKa
 <script>
 /* ================= UTIL FORMAT ================= */
 function formatPersen(v){
-  const n = Number(v);
-  if(isNaN(n)) return "0 %";
+  if(v === null || v === undefined || v === "") return "0,00 %";
+
+  // 🔥 PAKSA FORMAT INDONESIA → NUMBER
+  const n = Number(
+    String(v).replace(",", ".")
+  );
+
+  if(isNaN(n)) return "0,00 %";
+
   return (n * 100)
-    .toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-    + " %";
+    .toLocaleString("id-ID", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }) + " %";
 }
 
 /* ================= LOAD LAPORAN ================= */
