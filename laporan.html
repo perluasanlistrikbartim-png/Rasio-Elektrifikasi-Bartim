@@ -308,6 +308,15 @@ footer{
 <script>
 /* ================= CONFIG ================= */
 const API_URL = "https://script.google.com/macros/s/AKfycbxa-soCZiiqGB86ND1s5tKaIBwHSz0OGmv9OgJoDXYLKS1DvgcGy6e1sInZI3JD0oSm/exec";
+<script>
+/* ================= UTIL FORMAT ================= */
+function formatPersen(v){
+  const n = Number(v);
+  if(isNaN(n)) return "0 %";
+  return (n * 100)
+    .toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    + " %";
+}
 
 /* ================= LOAD LAPORAN ================= */
 function loadLaporan(){
@@ -337,19 +346,20 @@ function loadLaporan(){
       sTidak+=+d.rt_non_listrik;
       sJml+=+d.jumlah;
 
-      tb.innerHTML+=`
-        <tr>
-          <td>${i+1}</td>
-          <td>${d.kecamatan}</td>
-          <td>${d.desa}</td>
-          <td>${d.rt_pln}</td>
-          <td>${d.rt_non_pln}</td>
-          <td>${d.rt_non_listrik}</td>
-          <td>${d.jumlah}</td>
-          <td>${d.persen_pln}</td>
-          <td>${d.persen_non_pln}</td>
-          <td>${d.persen_tidak_berlistrik}</td>
-        </tr>`;
+     tb.innerHTML += `
+  <tr>
+    <td>${i+1}</td>
+    <td>${d.kecamatan}</td>
+    <td>${d.desa}</td>
+    <td>${d.rt_pln}</td>
+    <td>${d.rt_non_pln}</td>
+    <td>${d.rt_non_listrik}</td>
+    <td>${d.jumlah}</td>
+    <td>${formatPersen(d.persen_pln)}</td>
+    <td>${formatPersen(d.persen_non_pln)}</td>
+    <td>${formatPersen(d.persen_tidak_berlistrik)}</td>
+  </tr>`;
+
     });
 
     document.getElementById("tPln").innerText=sPln;
