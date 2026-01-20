@@ -7,7 +7,7 @@
 
 <style>
 /* =====================================================
-   RESET & THEME (SAMA DENGAN INDEX)
+   RESET & THEME
 ===================================================== */
 html,body{
   margin:0;
@@ -18,7 +18,7 @@ html,body{
 }
 
 /* =====================================================
-   HEADER + ANIMASI KILAT
+   HEADER
 ===================================================== */
 header{
   background:#000814;
@@ -51,8 +51,8 @@ header::after{
   margin:auto;
   padding:14px 16px;
   display:flex;
-  align-items:center;
   justify-content:center;
+  align-items:center;
   gap:14px;
 }
 
@@ -61,15 +61,10 @@ header::after{
   filter:drop-shadow(0 0 6px rgba(244,180,0,.6));
 }
 
-.header-title{
-  text-align:center;
-}
-
 .header-title h1{
   margin:0;
   font-size:1.4rem;
   font-weight:800;
-  color:#fff;
 }
 
 .header-title span{
@@ -87,20 +82,15 @@ header::after{
 }
 
 /* =====================================================
-   FILTER LAPORAN
+   FILTER
 ===================================================== */
 .filter-box{
   background:linear-gradient(180deg,#071a33,#050f22);
   border-radius:16px;
   padding:16px;
-  box-shadow:0 0 22px rgba(0,180,255,.25);
   border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 0 22px rgba(0,180,255,.25);
   margin-bottom:18px;
-}
-
-.filter-box h3{
-  margin:0 0 10px;
-  color:#ffe08a;
 }
 
 .filter-form{
@@ -145,12 +135,13 @@ header::after{
 }
 
 /* =====================================================
-   TABLE LAPORAN
+   TABLE CONTAINER
 ===================================================== */
 .box-table{
   background:linear-gradient(180deg,#071a33,#050f22);
   border-radius:18px;
   padding:14px;
+  margin-bottom:28px; /* JARAK ANTAR TABEL */
 }
 
 .table-scroll{
@@ -158,8 +149,12 @@ header::after{
   overflow:auto;
 }
 
+/* =====================================================
+   TABLE FIX (ANTI HEADER PECAH)
+===================================================== */
 table{
   width:100%;
+  table-layout:fixed;
   border-collapse:separate;
   border-spacing:0;
   font-size:13px;
@@ -168,18 +163,78 @@ table{
 th,td{
   padding:8px 10px;
   border-bottom:1px solid rgba(0,180,255,.3);
+  white-space:nowrap;
 }
 
-th{
+/* ===== STICKY HEADER 2 BARIS ===== */
+thead th{
   position:sticky;
-  top:0;
   background:#0b2442;
   color:#7dd3fc;
+  z-index:3;
+}
+
+thead tr:first-child th{
+  top:0;
+  height:36px;
+}
+
+thead tr:nth-child(2) th{
+  top:36px;
+  height:32px;
+  z-index:2;
 }
 
 tfoot td{
   font-weight:800;
   color:#ffe08a;
+}
+
+/* =====================================================
+   RESUME KABUPATEN (TABEL TANPA HEADER)
+===================================================== */
+.resume-box{
+  margin-top:30px;
+  background:linear-gradient(180deg,#061a30,#040e1f);
+  border-radius:18px;
+  padding:16px;
+  border:1px solid rgba(0,180,255,.25);
+  box-shadow:0 0 24px rgba(0,180,255,.25);
+}
+
+.resume-box h3{
+  margin:0 0 14px;
+  text-align:center;
+  color:#ffe08a;
+  font-size:16px;
+}
+
+.resume-table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+.resume-table td{
+  padding:10px 12px;
+  border-bottom:1px dashed rgba(0,180,255,.25);
+}
+
+.resume-table td:nth-child(1){
+  width:40%;
+  color:#9ecbff;
+}
+
+.resume-table td:nth-child(2){
+  width:5%;
+  text-align:center;
+  color:#9ecbff;
+}
+
+.resume-table td:nth-child(3){
+  width:55%;
+  text-align:right;
+  font-weight:900;
+  color:#00e5ff;
 }
 
 /* =====================================================
@@ -192,67 +247,6 @@ footer{
   border-top:2px solid #f4b400;
 }
 
-.footer-inner{
-  max-width:1200px;
-  margin:auto;
-  display:flex;
-  justify-content:space-between;
-  flex-wrap:wrap;
-  gap:10px;
-}
-
-.footer-title{
-  font-weight:700;
-}
-
-.footer-sub{
-  font-size:12px;
-  color:#9ecbff;
-}
-   /* ===================== RESUME KABUPATEN ===================== */
-.resume-box{
-  margin-top:28px;
-  padding:18px 20px;
-  background:linear-gradient(180deg,#061a30,#040e1f);
-  border-radius:18px;
-  border:1px solid rgba(0,180,255,.25);
-  box-shadow:0 0 24px rgba(0,180,255,.25);
-}
-
-.resume-box h3{
-  margin:0 0 16px;
-  color:#ffe08a;
-  text-align:center;
-  font-size:16px;
-  letter-spacing:.5px;
-}
-
-.resume-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:14px 20px;
-}
-
-.resume-grid div{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:10px 12px;
-  background:#071a33;
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,.08);
-}
-
-.resume-grid span{
-  font-size:13px;
-  color:#9ecbff;
-}
-
-.resume-grid b{
-  font-size:15px;
-  color:#00e5ff;
-  font-weight:900;
-}
 
 </style>
 </head>
@@ -425,24 +419,22 @@ footer{
 </div>
 
 </div>
-<!-- ===================== RESUME KABUPATEN ===================== -->
 <div class="resume-box" id="resumeBox" style="display:none">
   <h3>Rangkuman Kabupaten Barito Timur</h3>
 
-  <div class="resume-grid">
-    <div><span>Jumlah Kecamatan</span><b id="rKec"></b></div>
-    <div><span>Jumlah Desa</span><b id="rDesa"></b></div>
-    <div><span>Jumlah Kelurahan</span><b id="rKel"></b></div>
-    <div><span>Jumlah Desa/Kelurahan Berlistrik</span><b id="rDesaListrik"></b></div>
-
-    <div><span>Rasio Desa/Kelurahan Berlistrik</span><b id="rRasioDesa"></b></div>
-
-    <div><span>Rasio Elektrifikasi PLN</span><b id="rPln"></b></div>
-    <div><span>Rasio Elektrifikasi Non PLN</span><b id="rNon"></b></div>
-    <div><span>Rasio Elektrifikasi Kabupaten</span><b id="rTotal"></b></div>
-    <div><span>Persentase Rumah Tangga Tidak Berlistrik</span><b id="rTidak"></b></div>
-  </div>
+  <table class="resume-table">
+    <tr><td>Jumlah Kecamatan</td><td>:</td><td id="rKec"></td></tr>
+    <tr><td>Jumlah Kelurahan</td><td>:</td><td id="rKel"></td></tr>
+    <tr><td>Jumlah Desa</td><td>:</td><td id="rDesa"></td></tr>
+    <tr><td>Desa/Kelurahan Berlistrik</td><td>:</td><td id="rDesaListrik"></td></tr>
+    <tr><td>Rasio Desa/Kelurahan Berlistrik</td><td>:</td><td id="rRasioDesa"></td></tr>
+    <tr><td>Rasio Elektrifikasi PLN</td><td>:</td><td id="rPln"></td></tr>
+    <tr><td>Rasio Elektrifikasi Non PLN</td><td>:</td><td id="rNon"></td></tr>
+    <tr><td>Rasio Elektrifikasi Kabupaten</td><td>:</td><td id="rTotal"></td></tr>
+    <tr><td>Persentase RT Tidak Berlistrik</td><td>:</td><td id="rTidak"></td></tr>
+  </table>
 </div>
+
 
 <footer>
   <div class="footer-inner">
