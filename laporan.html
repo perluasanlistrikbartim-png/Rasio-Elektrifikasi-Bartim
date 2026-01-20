@@ -722,6 +722,12 @@ function toggleExport(){
 </footer>
 
 <script>
+/* =====================================================
+   GLOBAL EXPORT DATA (WAJIB ADA)
+===================================================== */
+let dataRekapArray = [];
+let resumeArray = [];
+
 /* ================= CONFIG ================= */
 const API_URL = "https://script.google.com/macros/s/AKfycbxa-soCZiiqGB86ND1s5tKaIBwHSz0OGmv9OgJoDXYLKS1DvgcGy6e1sInZI3JD0oSm/exec";
 
@@ -756,9 +762,7 @@ function loadLaporan(){
         return;
       }
 
-      /* =====================================================
-         ===================== TABEL 1 ======================
-      ===================================================== */
+      /* ===================== TABEL 1 ===================== */
       const tb1 = document.querySelector("#tbl tbody");
       tb1.innerHTML = "";
 
@@ -779,22 +783,17 @@ function loadLaporan(){
   <td>${i+1}</td>
   <td>${d.kecamatan}</td>
   <td>${d.desa}</td>
-
   <td>${d.desa_pln || "-"}</td>
   <td>${d.desa_non_pln || "-"}</td>
-
   <td>${d.rt_pln}</td>
   <td>${d.rt_non_pln}</td>
   <td>${rtBerlistrik}</td>
-
   <td>${d.rt_non_listrik}</td>
   <td>${d.jumlah}</td>
-
   <td>${formatPersen(d.persen_pln)}</td>
   <td>${formatPersen(d.persen_non_pln)}</td>
   <td>${formatPersen(d.persen_berlistrik)}</td>
   <td>${formatPersen(d.persen_tidak_berlistrik)}</td>
-
   <td>-</td>
 </tr>`;
       });
@@ -811,27 +810,20 @@ function loadLaporan(){
       document.getElementById("infoValue").innerText =
         `${res.total_desa} Desa/Kelurahan`;
 
-      /* =====================================================
-         ===================== TABEL 2 ======================
-      ===================================================== */
+      /* ===================== TABEL 2 ===================== */
       const tb2 = document.querySelector("#tblRekap tbody");
       tb2.innerHTML = "";
+      dataRekapArray = [];
 
       const map = {};
 
       res.data.forEach(d=>{
         if(!map[d.kecamatan]){
           map[d.kecamatan] = {
-            jumlahDesa:0,
-            jumlahKel:0,
-            desaPln:0,
-            desaNon:0,
-            desaBerlistrik:0,
-            rtPln:0,
-            rtNon:0,
-            rtBerlistrik:0,
-            rtTidak:0,
-            total:0
+            jumlahDesa:0, jumlahKel:0,
+            desaPln:0, desaNon:0, desaBerlistrik:0,
+            rtPln:0, rtNon:0, rtBerlistrik:0,
+            rtTidak:0, total:0
           };
         }
 
@@ -851,190 +843,128 @@ function loadLaporan(){
         m.total += +d.jumlah || 0;
       });
 
-      let no=1;
-       /* =====================================================
-   ===================== RESUME KABUPATEN =====================
-===================================================== */
-let totalKec = Object.keys(map).length;
-let totalDesa = 0;
-let totalKel  = 0;
-let totalDesaListrik = 0;
-
-let totRtPln = 0;
-let totRtNon = 0;
-let totRtListrik = 0;
-let totRtTidak = 0;
-let totRt = 0;
-
-Object.values(map).forEach(m=>{
-  totalDesa += m.jumlahDesa;
-  totalKel  += m.jumlahKel;
-  totalDesaListrik += m.desaBerlistrik;
-
-  totRtPln += m.rtPln;
-  totRtNon += m.rtNon;
-  totRtListrik += m.rtBerlistrik;
-  totRtTidak += m.rtTidak;
-  totRt += m.total;
-});
-
-/* === RASIO === */
-const rasioDesa =
-  (totalDesa + totalKel) > 0
-    ? totalDesaListrik / (totalDesa + totalKel)
-    : 0;
-
-const rasioPln = totRt ? totRtPln / totRt : 0;
-const rasioNon = totRt ? totRtNon / totRt : 0;
-const rasioTot = totRt ? totRtListrik / totRt : 0;
-const rasioTidak = totRt ? totRtTidak / totRt : 0;
-
-/* === TAMPILKAN RESUME === */
-document.getElementById("resumeBox").style.display = "block";
-
-document.getElementById("rKec").innerText = totalKec + " kecamatan";
-document.getElementById("rDesa").innerText = totalDesa + " desa";
-document.getElementById("rKel").innerText  = totalKel + " kelurahan";
-document.getElementById("rDesaListrik").innerText =
-  totalDesaListrik + " desa/kelurahan";
-
-document.getElementById("rRasioDesa").innerText = formatPersen(rasioDesa);
-document.getElementById("rPln").innerText   = formatPersen(rasioPln);
-document.getElementById("rNon").innerText   = formatPersen(rasioNon);
-document.getElementById("rTotal").innerText = formatPersen(rasioTot);
-document.getElementById("rTidak").innerText = formatPersen(rasioTidak);
+      let no = 1;
 
       Object.keys(map).forEach(kec=>{
         const m = map[kec];
         const totalWilayah = m.jumlahDesa + m.jumlahKel;
-
-        const desaBelum =
-          m.desaBerlistrik < totalWilayah
-            ? totalWilayah - m.desaBerlistrik
-            : "-";
+        const desaBelum = totalWilayah - m.desaBerlistrik;
 
         const rPln  = m.total ? m.rtPln/m.total : 0;
         const rNon  = m.total ? m.rtNon/m.total : 0;
         const rTot  = m.total ? m.rtBerlistrik/m.total : 0;
         const rDesa = totalWilayah ? m.desaBerlistrik/totalWilayah : 0;
 
+        const row = [
+          no, kec, m.jumlahKel, m.jumlahDesa,
+          m.desaPln, m.desaNon, desaBelum,
+          m.rtPln, m.rtNon, m.rtBerlistrik,
+          m.rtTidak, m.total,
+          formatPersen(rPln), formatPersen(rNon),
+          formatPersen(rTot), formatPersen(rDesa)
+        ];
+
+        dataRekapArray.push(row);
+
         tb2.innerHTML += `
-<tr>
-  <td>${no++}</td>
-  <td>${kec}</td>
-  <td>${m.jumlahKel}</td>
-  <td>${m.jumlahDesa}</td>
-
-  <td>${m.desaPln}</td>
-  <td>${m.desaNon}</td>
-  <td>${desaBelum}</td>
-
-  <td>${m.rtPln}</td>
-  <td>${m.rtNon}</td>
-  <td>${m.rtBerlistrik}</td>
-
-  <td>${m.rtTidak}</td>
-  <td>${m.total}</td>
-
-  <td>${formatPersen(rPln)}</td>
-  <td>${formatPersen(rNon)}</td>
-  <td>${formatPersen(rTot)}</td>
-  <td>${formatPersen(rDesa)}</td>
-</tr>`;
+<tr>${row.map(c=>`<td>${c}</td>`).join("")}</tr>`;
+        no++;
       });
 
-    }); // end fetch
+      /* ===================== RESUME ===================== */
+      let totalKec = Object.keys(map).length;
+      let totalDesa=0, totalKel=0, totalDesaListrik=0;
+      let totRtPln=0, totRtNon=0, totRtListrik=0, totRtTidak=0, totRt=0;
+
+      Object.values(map).forEach(m=>{
+        totalDesa+=m.jumlahDesa;
+        totalKel+=m.jumlahKel;
+        totalDesaListrik+=m.desaBerlistrik;
+        totRtPln+=m.rtPln;
+        totRtNon+=m.rtNon;
+        totRtListrik+=m.rtBerlistrik;
+        totRtTidak+=m.rtTidak;
+        totRt+=m.total;
+      });
+
+      resumeArray = [
+        ["Jumlah Kecamatan", totalKec],
+        ["Jumlah Kelurahan", totalKel],
+        ["Jumlah Desa", totalDesa],
+        ["Desa/Kelurahan Berlistrik", totalDesaListrik],
+        ["Rasio Desa/Kelurahan Berlistrik", formatPersen(totalDesaListrik/(totalDesa+totalKel))],
+        ["Rasio Elektrifikasi PLN", formatPersen(totRtPln/totRt)],
+        ["Rasio Elektrifikasi Non PLN", formatPersen(totRtNon/totRt)],
+        ["Rasio Elektrifikasi Kabupaten", formatPersen(totRtListrik/totRt)],
+        ["Persentase RT Tidak Berlistrik", formatPersen(totRtTidak/totRt)]
+      ];
+
+      document.getElementById("resumeBox").style.display="block";
+      document.getElementById("rKec").innerText = totalKec+" kecamatan";
+      document.getElementById("rKel").innerText = totalKel+" kelurahan";
+      document.getElementById("rDesa").innerText = totalDesa+" desa";
+      document.getElementById("rDesaListrik").innerText = totalDesaListrik+" desa/kelurahan";
+      document.getElementById("rRasioDesa").innerText = resumeArray[4][1];
+      document.getElementById("rPln").innerText = resumeArray[5][1];
+      document.getElementById("rNon").innerText = resumeArray[6][1];
+      document.getElementById("rTotal").innerText = resumeArray[7][1];
+      document.getElementById("rTidak").innerText = resumeArray[8][1];
+    });
 }
 
-function exportPDF() {
+/* ===================== EXPORT PDF ===================== */
+function exportPDF(){
+  if(!dataRekapArray.length){ alert("Data belum dimuat"); return; }
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF("landscape", "mm", "a4");
+  const doc = new jsPDF("landscape","mm","a4");
 
   doc.setFontSize(11);
-  doc.text(
-    "RASIO ELEKTRIFIKASI DAN RASIO KELURAHAN/DESA BERLISTRIK BARITO TIMUR",
-    148, 12, { align: "center" }
-  );
+  doc.text("RASIO ELEKTRIFIKASI DAN RASIO KELURAHAN/DESA BERLISTRIK BARITO TIMUR",148,12,{align:"center"});
   doc.setFontSize(10);
-  doc.text(
-    "PROVINSI KALIMANTAN TENGAH – TRIWULAN IV 2025",
-    148, 18, { align: "center" }
-  );
+  doc.text("PROVINSI KALIMANTAN TENGAH",148,18,{align:"center"});
 
-  /* ===== TABEL 2 ===== */
   doc.autoTable({
-    startY: 25,
-    head: [[
-      "No","Kecamatan","Kel",
-      "Desa","PLN","Non PLN",
-      "Belum Berlistrik",
-      "RT PLN","RT Non PLN",
-      "RT Berlistrik",
-      "RT Tidak",
-      "Total RT",
-      "Rasio PLN",
-      "Rasio Non PLN",
-      "Rasio Total",
-      "Rasio Desa"
-    ]],
-    body: dataRekapArray, // ← array dari JS
-    theme: "grid",
-    styles: { fontSize: 8, cellPadding: 2 },
-    headStyles: {
-      fillColor: [220, 230, 241],
-      textColor: 0,
-      halign: "center"
-    }
+    startY:25,
+    head:[["No","Kecamatan","Kel","Desa","PLN","Non PLN","Belum","RT PLN","RT Non","RT Listrik","RT Tidak","Total","Rasio PLN","Rasio Non","Rasio Total","Rasio Desa"]],
+    body:dataRekapArray,
+    styles:{fontSize:8,cellPadding:2},
+    headStyles:{fillColor:[220,230,241],textColor:0},
+    theme:"grid"
   });
 
-  /* ===== RESUME ===== */
   doc.autoTable({
-    startY: doc.lastAutoTable.finalY + 6,
-    body: resumeArray,
-    theme: "plain",
-    styles: { fontSize: 9 }
+    startY:doc.lastAutoTable.finalY+6,
+    body:resumeArray,
+    theme:"plain",
+    styles:{fontSize:9}
   });
 
   doc.save("Laporan_Rasio_Elektrifikasi.pdf");
 }
 
+/* ===================== EXPORT EXCEL ===================== */
+function exportExcel(){
+  if(!dataRekapArray.length){ alert("Data belum dimuat"); return; }
 
-
-function exportExcel() {
   const wb = XLSX.utils.book_new();
-
   const wsData = [
     ["RASIO ELEKTRIFIKASI DAN RASIO KELURAHAN/DESA BERLISTRIK BARITO TIMUR"],
     ["PROVINSI KALIMANTAN TENGAH"],
-    ["TRIWULAN IV 2025"],
     [],
-    ["No","Kecamatan","Jumlah Kel","Jumlah Desa","PLN","Non PLN",
-     "Belum Berlistrik","RT PLN","RT Non PLN","RT Berlistrik",
-     "RT Tidak","Total RT","Rasio PLN","Rasio Non PLN",
-     "Rasio Total","Rasio Desa"]
+    ["No","Kecamatan","Jumlah Kel","Jumlah Desa","PLN","Non PLN","Belum Berlistrik","RT PLN","RT Non","RT Listrik","RT Tidak","Total","Rasio PLN","Rasio Non","Rasio Total","Rasio Desa"],
+    ...dataRekapArray
   ];
-
-  dataRekapArray.forEach(r => wsData.push(r));
 
   const ws = XLSX.utils.aoa_to_sheet(wsData);
+  ws["!merges"]=[{s:{r:0,c:0},e:{r:0,c:15}},{s:{r:1,c:0},e:{r:1,c:15}}];
+  ws["!freeze"]={xSplit:0,ySplit:4};
+  ws["!cols"]=Array(16).fill({wch:14});
 
-  ws["!merges"] = [
-    { s:{r:0,c:0}, e:{r:0,c:15} },
-    { s:{r:1,c:0}, e:{r:1,c:15} },
-    { s:{r:2,c:0}, e:{r:2,c:15} }
-  ];
-
-  ws["!cols"] = Array(16).fill({ wch: 14 });
-  ws["!freeze"] = { xSplit: 0, ySplit: 5 };
-
-  XLSX.utils.book_append_sheet(wb, ws, "Rekap Kecamatan");
-  XLSX.writeFile(wb, "Laporan_Rasio_Elektrifikasi.xlsx");
+  XLSX.utils.book_append_sheet(wb,ws,"Rekap Kecamatan");
+  XLSX.writeFile(wb,"Laporan_Rasio_Elektrifikasi.xlsx");
 }
-
-
-
-
 </script>
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
