@@ -431,6 +431,50 @@ th,td{
     position:static !important;
   }
 }
+/* ================= EXPORT DROPDOWN ================= */
+.export-box{
+  position:relative;
+  display:inline-block;
+  margin:12px 0;
+}
+
+.export-btn{
+  padding:8px 14px;
+  background:#f4b400;
+  color:#000;
+  border:none;
+  border-radius:8px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.export-menu{
+  display:none;
+  position:absolute;
+  top:100%;
+  left:0;
+  min-width:180px;
+  background:#071a33;
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:10px;
+  box-shadow:0 10px 30px rgba(0,0,0,.5);
+  z-index:99;
+}
+
+.export-menu div{
+  padding:10px 14px;
+  cursor:pointer;
+  color:#e0f7ff;
+}
+
+.export-menu div:hover{
+  background:#0b2442;
+}
+
+/* tampil saat hover */
+.export-box:hover .export-menu{
+  display:block;
+}
 
 </style>
 
@@ -543,6 +587,13 @@ th,td{
         (REKAP PER KECAMATAN)
       </div>
     </div>
+<div class="export-box">
+  <button class="export-btn">⬇ Export</button>
+  <div class="export-menu">
+    <div onclick="exportPDF()">📄 Export PDF (A4)</div>
+    <div onclick="exportExcel()">📊 Export Excel</div>
+  </div>
+</div>
 
     <!-- ===================== TABEL 2 ===================== -->
     <div class="box-table">
