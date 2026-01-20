@@ -590,6 +590,58 @@ function loadLaporan(){
       });
 
       let no=1;
+       /* =====================================================
+   ===================== RESUME KABUPATEN =====================
+===================================================== */
+let totalKec = Object.keys(map).length;
+let totalDesa = 0;
+let totalKel  = 0;
+let totalDesaListrik = 0;
+
+let totRtPln = 0;
+let totRtNon = 0;
+let totRtListrik = 0;
+let totRtTidak = 0;
+let totRt = 0;
+
+Object.values(map).forEach(m=>{
+  totalDesa += m.jumlahDesa;
+  totalKel  += m.jumlahKel;
+  totalDesaListrik += m.desaBerlistrik;
+
+  totRtPln += m.rtPln;
+  totRtNon += m.rtNon;
+  totRtListrik += m.rtBerlistrik;
+  totRtTidak += m.rtTidak;
+  totRt += m.total;
+});
+
+/* === RASIO === */
+const rasioDesa =
+  (totalDesa + totalKel) > 0
+    ? totalDesaListrik / (totalDesa + totalKel)
+    : 0;
+
+const rasioPln = totRt ? totRtPln / totRt : 0;
+const rasioNon = totRt ? totRtNon / totRt : 0;
+const rasioTot = totRt ? totRtListrik / totRt : 0;
+const rasioTidak = totRt ? totRtTidak / totRt : 0;
+
+/* === TAMPILKAN RESUME === */
+document.getElementById("resumeBox").style.display = "block";
+
+document.getElementById("rKec").innerText = totalKec + " kecamatan";
+document.getElementById("rDesa").innerText = totalDesa + " desa";
+document.getElementById("rKel").innerText  = totalKel + " kelurahan";
+document.getElementById("rDesaListrik").innerText =
+  totalDesaListrik + " desa/kelurahan";
+
+document.getElementById("rRasioDesa").innerText = formatPersen(rasioDesa);
+document.getElementById("rPln").innerText   = formatPersen(rasioPln);
+document.getElementById("rNon").innerText   = formatPersen(rasioNon);
+document.getElementById("rTotal").innerText = formatPersen(rasioTot);
+document.getElementById("rTidak").innerText = formatPersen(rasioTidak);
+
       Object.keys(map).forEach(kec=>{
         const m = map[kec];
         const totalWilayah = m.jumlahDesa + m.jumlahKel;
@@ -631,55 +683,6 @@ function loadLaporan(){
 
     }); // end fetch
 }
-   /* ===================== RESUME KABUPATEN ===================== */
-let totalKec = Object.keys(map).length;
-let totalDesa = 0;
-let totalKel  = 0;
-let totalDesaListrik = 0;
-
-let totRtPln = 0;
-let totRtNon = 0;
-let totRtListrik = 0;
-let totRtTidak = 0;
-let totRt = 0;
-
-Object.values(map).forEach(m=>{
-  totalDesa += m.jumlahDesa;
-  totalKel  += m.jumlahKel;
-  totalDesaListrik += m.desaBerlistrik;
-
-  totRtPln += m.rtPln;
-  totRtNon += m.rtNon;
-  totRtListrik += m.rtBerlistrik;
-  totRtTidak += m.rtTidak;
-  totRt += m.total;
-});
-
-/* === RASIO === */
-const rasioDesa =
-  (totalDesa + totalKel) > 0
-    ? totalDesaListrik / (totalDesa + totalKel)
-    : 0;
-
-const rasioPln = totRt ? totRtPln / totRt : 0;
-const rasioNon = totRt ? totRtNon / totRt : 0;
-const rasioTot = totRt ? totRtListrik / totRt : 0;
-const rasioTidak = totRt ? totRtTidak / totRt : 0;
-
-/* === TAMPILKAN === */
-document.getElementById("resumeBox").style.display = "block";
-
-document.getElementById("rKec").innerText = totalKec + " kecamatan";
-document.getElementById("rDesa").innerText = totalDesa + " desa";
-document.getElementById("rKel").innerText  = totalKel + " kelurahan";
-document.getElementById("rDesaListrik").innerText =
-  totalDesaListrik + " desa/kelurahan";
-
-document.getElementById("rRasioDesa").innerText = formatPersen(rasioDesa);
-document.getElementById("rPln").innerText   = formatPersen(rasioPln);
-document.getElementById("rNon").innerText   = formatPersen(rasioNon);
-document.getElementById("rTotal").innerText = formatPersen(rasioTot);
-document.getElementById("rTidak").innerText = formatPersen(rasioTidak);
 
 </script>
 
