@@ -877,104 +877,123 @@ function loadLaporan(){
 ===================================================== */
 function exportPDF(){
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF("landscape","mm","a4");
+  const doc = new jsPDF("landscape", "mm", "a4");
+
+  // mode PDF (pakai CSS yang sudah kamu buat)
+  document.body.classList.add("mode-pdf");
 
   doc.setFontSize(12);
   doc.text(
     "RASIO ELEKTRIFIKASI DAN RASIO KELURAHAN/DESA BERLISTRIK BARITO TIMUR",
-    148,10,{align:"center"}
+    148, 10, { align:"center" }
   );
   doc.setFontSize(10);
-  doc.text(`PROVINSI KALIMANTAN TENGAH – ${periodeText}`,148,16,{align:"center"});
+  doc.text(
+    "PROVINSI KALIMANTAN TENGAH – " + periodeText,
+    148, 16, { align:"center" }
+  );
 
   doc.autoTable({
-    startY:22,
-    head:[HEADER_ROW_1, HEADER_ROW_2],
-    body:dataRekapArray,
-    theme:"grid",
+    html: "#tblRekap",          // ⬅ AMBIL HTML ASLI
+    startY: 22,
+    theme: "grid",
+    tableWidth: "auto",
     styles:{
-      fontSize:8,
-      cellPadding:2,
-      halign:"center",
-      valign:"middle",
-      lineColor:[0,0,0],
-      lineWidth:0.2
+      fontSize: 8,
+      cellPadding: 2,
+      halign: "center",
+      valign: "middle"
     },
     headStyles:{
-      fillColor:[207,226,243],
-      textColor:0,
-      fontStyle:"bold"
+      fillColor: [207,226,243], // biru muda
+      textColor: 0,
+      lineWidth: 0.3
     },
-    columnStyles:{
-      1:{cellWidth:40},   // Kecamatan
-      6:{cellWidth:30},   // Belum berlistrik
+    bodyStyles:{
+      lineWidth: 0.2
     },
-    margin:{left:10,right:10}
+    didDrawPage(){
+      // footer
+      doc.setFontSize(8);
+      doc.text(
+        "Sumber Data: Kabupaten Barito Timur",
+        14, 200
+      );
+    }
   });
 
+  // ===== RESUME (TABEL 3) =====
   doc.autoTable({
-    startY:doc.lastAutoTable.finalY+4,
-    head:[["No","Indikator","Nilai"]],
-    body:resumeArray.map((r,i)=>[i+1,r[0],r[1]]),
-    theme:"grid",
-    styles:{fontSize:9}
+    startY: doc.lastAutoTable.finalY + 6,
+    body: resumeArray.map((r,i)=>[i+1, r[0], r[1]]),
+    theme: "grid",
+    styles:{ fontSize:9 },
+    head:[["No","Indikator","Nilai"]]
   });
 
+  document.body.classList.remove("mode-pdf");
   doc.save("Laporan_Rasio_Elektrifikasi.pdf");
 }
-
 
 /* =====================================================
    EXPORT EXCEL (MERGE + BORDER + FREEZE)
 ===================================================== */
 function exportExcel(){
-  const wb = XLSX.utils.book_new();
+  // clone tabel HTML
+  const table = document.getElementById("tblRekap").cloneNode(true);
 
-  const wsData = [
+  // hapus sticky / style web
+  table.querySelectorAll("*").forEach(el=>{
+    el.style.position = "static";
+  });
+
+  // ubah ke worksheet
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.table_to_sheet(table, {
+    raw: true
+  });
+
+  // ==== JUDUL ====
+  XLSX.utils.sheet_add_aoa(ws, [
     ["RASIO ELEKTRIFIKASI DAN RASIO KELURAHAN/DESA BERLISTRIK BARITO TIMUR"],
     ["PROVINSI KALIMANTAN TENGAH"],
     [periodeText],
-    [],
-    // HEADER BARIS 1
-    ["No","Kecamatan","Jumlah Kelurahan","Jumlah Desa",
-     "Desa/Kelurahan Berlistrik","","Desa/Kelurahan Belum Berlistrik",
-     "Rumah Tangga Berlistrik","","",
-     "Jumlah RT Belum Berlistrik","Total RT",
-     "Rasio PLN","Rasio Non PLN","Rasio Elektrifikasi","Rasio Desa"],
-    // HEADER BARIS 2
-    ["","","","","PLN","Non PLN","","PLN","Non PLN","Jumlah","","","","","",""],
-    ...dataRekapArray,
-    [],
-    ["RANGKUMAN"],
-    ...resumeArray
-  ];
-
-  const ws = XLSX.utils.aoa_to_sheet(wsData);
+    []
+  ], { origin: "A1" });
 
   ws["!merges"] = [
-    {s:{r:0,c:0},e:{r:0,c:15}},
-    {s:{r:1,c:0},e:{r:1,c:15}},
-    {s:{r:2,c:0},e:{r:2,c:15}},
-    {s:{r:4,c:0},e:{r:5,c:0}},
-    {s:{r:4,c:1},e:{r:5,c:1}},
-    {s:{r:4,c:2},e:{r:5,c:2}},
-    {s:{r:4,c:3},e:{r:5,c:3}},
-    {s:{r:4,c:4},e:{r:4,c:5}},
-    {s:{r:4,c:7},e:{r:4,c:9}}
+    { s:{r:0,c:0}, e:{r:0,c:15} },
+    { s:{r:1,c:0}, e:{r:1,c:15} },
+    { s:{r:2,c:0}, e:{r:2,c:15} }
   ];
 
-  ws["!cols"] = [
-    {wch:5},{wch:22},{wch:10},{wch:10},
-    {wch:8},{wch:8},{wch:16},
-    {wch:10},{wch:10},{wch:10},
-    {wch:14},{wch:12},
-    {wch:12},{wch:14},{wch:14},{wch:14}
-  ];
+  // ==== FREEZE HEADER (2 BARIS HEADER + JUDUL) ====
+  ws["!freeze"] = { xSplit:0, ySplit:6 };
 
-  ws["!freeze"] = { ySplit:6 };
+  // ==== AUTO WIDTH ====
+  ws["!cols"] = Array(16).fill({ wch: 14 });
 
   XLSX.utils.book_append_sheet(wb, ws, "Rekap Kecamatan");
-  XLSX.writeFile(wb,"Laporan_Rasio_Elektrifikasi.xlsx");
+
+  // ===== SHEET RANGKUMAN =====
+  const ws2 = XLSX.utils.aoa_to_sheet([
+    ["RANGKUMAN KABUPATEN BARITO TIMUR"],
+    [],
+    ["No","Indikator","Nilai"],
+    ...resumeArray.map((r,i)=>[i+1,r[0],r[1]])
+  ]);
+
+  ws2["!merges"] = [
+    { s:{r:0,c:0}, e:{r:0,c:2} }
+  ];
+
+  ws2["!cols"] = [
+    {wch:6},{wch:40},{wch:20}
+  ];
+
+  XLSX.utils.book_append_sheet(wb, ws2, "Rangkuman");
+
+  XLSX.writeFile(wb, "Laporan_Rasio_Elektrifikasi.xlsx");
 }
 
 </script>
