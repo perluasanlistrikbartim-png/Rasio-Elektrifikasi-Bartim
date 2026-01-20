@@ -135,13 +135,13 @@ header::after{
 }
 
 /* =====================================================
-   TABLE CONTAINER
+   BOX TABLE
 ===================================================== */
 .box-table{
   background:linear-gradient(180deg,#071a33,#050f22);
   border-radius:18px;
   padding:14px;
-  margin-bottom:28px;
+  margin-bottom:26px;
 }
 
 .table-scroll{
@@ -150,11 +150,10 @@ header::after{
 }
 
 /* =====================================================
-   TABLE GLOBAL (ANTI HEADER PECAH)
+   TABLE GLOBAL (AMAN)
 ===================================================== */
 table{
   width:100%;
-  table-layout:fixed;
   border-collapse:separate;
   border-spacing:0;
   font-size:13px;
@@ -163,44 +162,74 @@ table{
 th,td{
   padding:8px 10px;
   border-bottom:1px solid rgba(0,180,255,.3);
-  white-space:nowrap;
 }
 
 /* =====================================================
-   STICKY HEADER 2 BARIS (STABIL)
+   TABEL 1 – DETAIL DESA (AUTO WRAP, AUTO WIDTH)
 ===================================================== */
-thead th{
+#tbl{
+  table-layout:auto;
+}
+
+#tbl th{
+  white-space:normal;
+  text-align:center;
+  line-height:1.25;
+  vertical-align:middle;
+  background:#0b2442;
+  position:sticky;
+  top:0;
+  z-index:2;
+}
+
+#tbl td{
+  white-space:nowrap;
+}
+
+/* Lebar kolom Tabel 1 (rapi & konsisten) */
+#tbl th:nth-child(1), #tbl td:nth-child(1){ width:42px; }
+#tbl th:nth-child(2){ width:160px; }
+#tbl th:nth-child(3){ width:180px; }
+#tbl th:nth-child(4), #tbl th:nth-child(5){ width:80px; }
+#tbl th:nth-child(6), #tbl th:nth-child(7), #tbl th:nth-child(8){ width:90px; }
+#tbl th:nth-child(9){ width:120px; }
+#tbl th:nth-child(10){ width:110px; }
+#tbl th:nth-child(11),
+#tbl th:nth-child(12),
+#tbl th:nth-child(13),
+#tbl th:nth-child(14){ width:120px; }
+
+/* =====================================================
+   TABEL 2 – REKAP KECAMATAN (FIXED + STICKY 2 BARIS)
+===================================================== */
+#tblRekap{
+  table-layout:fixed;
+}
+
+#tblRekap th,
+#tblRekap td{
+  text-align:center;
+  white-space:nowrap;
+}
+
+#tblRekap thead th{
   position:sticky;
   background:#0b2442;
   color:#7dd3fc;
   z-index:3;
-  text-align:center;
+  white-space:normal;
+  line-height:1.25;
 }
 
-thead tr:first-child th{
+#tblRekap thead tr:first-child th{
   top:0;
   height:38px;
 }
 
-thead tr:nth-child(2) th{
+#tblRekap thead tr:nth-child(2) th{
   top:38px;
   height:32px;
   z-index:2;
-}
-
-tfoot td{
-  font-weight:800;
-  color:#ffe08a;
-}
-
-/* =====================================================
-   FIX KHUSUS TABEL 2 (REKAP KECAMATAN)
-===================================================== */
-#tblRekap th{
-  white-space:normal !important;
-  line-height:1.25;
-  vertical-align:middle;
-  padding:10px 8px;
 }
 
 /* Kolom Rasio Desa Berlistrik */
@@ -210,11 +239,11 @@ tfoot td{
 }
 
 /* =====================================================
-   RESUME KABUPATEN (TABEL TANPA HEADER)
+   RESUME KABUPATEN (SEJAJAR TABEL 2)
 ===================================================== */
 .resume-box{
-  max-width:480px;
-  margin:0 0 0 0;
+  max-width:100%;
+  margin-top:10px;
   background:linear-gradient(180deg,#061a30,#040e1f);
   border-radius:18px;
   padding:16px 18px;
@@ -229,7 +258,7 @@ tfoot td{
   font-size:15px;
 }
 
-/* TABEL RESUME 3 KOLOM (NO | INDIKATOR | NILAI) */
+/* Resume Table: No | Indikator | Nilai */
 .resume-table{
   width:100%;
   border-collapse:collapse;
@@ -242,7 +271,7 @@ tfoot td{
 }
 
 .resume-table td:nth-child(1){
-  width:34px;
+  width:36px;
   text-align:center;
   font-weight:700;
   color:#7dd3fc;
@@ -259,15 +288,37 @@ tfoot td{
 }
 
 /* =====================================================
-   FOOTER
+   MODE CETAK / PDF
 ===================================================== */
-footer{
-  margin-top:30px;
-  padding:16px;
-  background:#000814;
-  border-top:2px solid #f4b400;
+@media print{
+  body{
+    background:#fff;
+    color:#000;
+  }
+
+  header, .filter-box, footer{
+    display:none !important;
+  }
+
+  .box-table, .resume-box{
+    box-shadow:none;
+    border:1px solid #000;
+  }
+
+  table{
+    font-size:11px;
+  }
+
+  th,td{
+    border:1px solid #000;
+  }
+
+  thead th{
+    position:static !important;
+  }
 }
 </style>
+
 
 </head>
 
