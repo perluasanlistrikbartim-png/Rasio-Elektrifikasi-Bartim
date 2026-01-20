@@ -883,140 +883,78 @@ function loadLaporan(){
 <script>
 function exportExcel(){
 
-  /* ================= CLONE TABEL HTML ================= */
-  const srcTable = document.getElementById("tblRekap");
-  if(!srcTable){
-    alert("Tabel rekap belum tersedia");
+  if(!dataRekapArray.length){
+    alert("Data belum tersedia");
     return;
   }
 
-  const table = srcTable.cloneNode(true);
-
-  /* bersihkan style web (sticky dll) */
-  table.querySelectorAll("*").forEach(el=>{
-    el.style.position = "static";
-    el.style.left = "";
-    el.style.top = "";
-  });
-
-  /* ================= BUAT WORKBOOK ================= */
   const wb = XLSX.utils.book_new();
 
-  /* ================= KONVERSI TABEL ================= */
-  const ws = XLSX.utils.table_to_sheet(table, { raw:true });
+  /* ================= HEADER AOA ================= */
+  const header1 = [
+    "No","Kecamatan","Jumlah Kelurahan","Jumlah Desa",
+    "Desa / Kelurahan Berlistrik","","Desa / Kelurahan Belum Berlistrik",
+    "Rumah Tangga Berlistrik","","",
+    "Jumlah Rumah Tangga Belum Berlistrik",
+    "Total Rumah Tangga",
+    "Rasio Elektrifikasi PLN",
+    "Rasio Elektrifikasi Non PLN",
+    "Rasio Elektrifikasi",
+    "Rasio Desa Berlistrik"
+  ];
 
-  /* ================= JUDUL ================= */
-  XLSX.utils.sheet_add_aoa(ws, [
+  const header2 = [
+    "","","","",
+    "PLN","Non PLN","",
+    "PLN","Non PLN","Jumlah",
+    "","","","","",""
+  ];
+
+  const wsData = [
     ["RASIO ELEKTRIFIKASI DAN RASIO KELURAHAN/DESA BERLISTRIK BARITO TIMUR"],
     ["PROVINSI KALIMANTAN TENGAH"],
     [periodeText],
-    []
-  ], { origin:"A1" });
-
-  /* ================= MERGE JUDUL ================= */
-  ws["!merges"] = [
-    { s:{r:0,c:0}, e:{r:0,c:15} },
-    { s:{r:1,c:0}, e:{r:1,c:15} },
-    { s:{r:2,c:0}, e:{r:2,c:15} }
+    [],
+    header1,
+    header2,
+    ...dataRekapArray.map(r=>r.map(v=>{
+      if(v===0 || v==="0") return "-";
+      if(typeof v==="string" && v.includes("%")){
+        const n = Number(v.replace("%","").replace(",","."));
+        return isNaN(n) ? "-" : n.toFixed(2).replace(".",",")+" %";
+      }
+      return v;
+    }))
   ];
 
-  /* ================= FREEZE (judul + 2 header) ================= */
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+  /* ================= MERGE ================= */
+  ws["!merges"] = [
+    {s:{r:0,c:0}, e:{r:0,c:15}},
+    {s:{r:1,c:0}, e:{r:1,c:15}},
+    {s:{r:2,c:0}, e:{r:2,c:15}},
+    {s:{r:4,c:4}, e:{r:4,c:5}},
+    {s:{r:4,c:7}, e:{r:4,c:9}}
+  ];
+
+  /* ================= FREEZE ================= */
   ws["!freeze"] = { xSplit:0, ySplit:6 };
 
-  /* ================= LEBAR KOLOM (MENYESUAIKAN PDF) ================= */
+  /* ================= WIDTH ================= */
   ws["!cols"] = [
-    {wch:5},   // No
-    {wch:26},  // Kecamatan (LEBAR)
-    {wch:14},  // Jumlah Kel
-    {wch:14},  // Jumlah Desa
-    {wch:10},  // PLN
-    {wch:10},  // Non PLN
-    {wch:16},  // Belum Berlistrik
-    {wch:10},  // RT PLN
-    {wch:10},  // RT Non
-    {wch:12},  // RT Jumlah
-    {wch:16},  // RT Belum
-    {wch:14},  // Total RT
-    {wch:16},  // Rasio PLN
-    {wch:18},  // Rasio Non PLN
-    {wch:16},  // Rasio Total
-    {wch:18}   // Rasio Desa
+    {wch:5},{wch:28},{wch:14},{wch:14},
+    {wch:10},{wch:10},{wch:18},
+    {wch:10},{wch:10},{wch:12},
+    {wch:18},{wch:14},
+    {wch:16},{wch:18},{wch:16},{wch:18}
   ];
 
-  /* ================= FORMAT CELL ================= */
-  Object.keys(ws).forEach(addr=>{
-    if(addr[0]==="!") return;
-    const cell = ws[addr];
-
-    /* BORDER GRID */
-    cell.s = cell.s || {};
-    cell.s.border = {
-      top:{style:"thin"},
-      bottom:{style:"thin"},
-      left:{style:"thin"},
-      right:{style:"thin"}
-    };
-
-    /* HEADER STYLE */
-    if(addr.match(/^[A-Z]+5$/) || addr.match(/^[A-Z]+6$/)){
-      cell.s.fill = { fgColor:{rgb:"CFE2F3"} };
-      cell.s.font = { bold:true };
-      cell.s.alignment = {
-        horizontal:"center",
-        vertical:"center",
-        wrapText:true
-      };
-    }else{
-      /* BODY */
-      cell.s.alignment = {
-        horizontal:"center",
-        vertical:"center",
-        wrapText:false
-      };
-    }
-
-    /* 0 → "-" */
-    if(cell.v === 0 || cell.v === "0"){
-      cell.v = "-";
-      cell.t = "s";
-    }
-
-    /* PERSEN → 2 DESIMAL */
-    if(typeof cell.v === "string" && cell.v.includes("%")){
-      const n = Number(cell.v.replace("%","").replace(",","."));
-      if(!isNaN(n)){
-        cell.v = n.toLocaleString("id-ID",{
-          minimumFractionDigits:2,
-          maximumFractionDigits:2
-        }) + " %";
-        cell.t = "s";
-      }
-    }
-  });
-
-  XLSX.utils.book_append_sheet(wb, ws, "Rekap Kecamatan");
-
-  /* ================= SHEET RANGKUMAN ================= */
-  const ws2 = XLSX.utils.aoa_to_sheet([
-    ["RANGKUMAN KABUPATEN BARITO TIMUR"],
-    [],
-    ["Indikator","Nilai"],
-    ...resumeArray
-  ]);
-
-  ws2["!merges"] = [
-    { s:{r:0,c:0}, e:{r:0,c:1} }
-  ];
-
-  ws2["!cols"] = [
-    {wch:40},
-    {wch:18}
-  ];
-
-  /* border & format rangkuman */
-  Object.keys(ws2).forEach(a=>{
+  /* ================= STYLE ================= */
+  Object.keys(ws).forEach(a=>{
     if(a[0]==="!") return;
-    ws2[a].s = {
+    const c = ws[a];
+    c.s = {
       border:{
         top:{style:"thin"},
         bottom:{style:"thin"},
@@ -1025,36 +963,67 @@ function exportExcel(){
       },
       alignment:{
         vertical:"center",
-        horizontal: a.endsWith("B") ? "right":"left"
+        horizontal: a.startsWith("B") ? "left":"center",
+        wrapText: a.match(/^[A-Z]+5|^[A-Z]+6/) ? true:false
+      }
+    };
+
+    if(a.match(/^[A-Z]+5|^[A-Z]+6/)){
+      c.s.font={bold:true};
+      c.s.fill={fgColor:{rgb:"CFE2F3"}};
+    }
+  });
+
+  XLSX.utils.book_append_sheet(wb, ws, "Rekap Kecamatan");
+
+  /* ================= RANGKUMAN ================= */
+  const ws2 = XLSX.utils.aoa_to_sheet([
+    ["RANGKUMAN KABUPATEN BARITO TIMUR"],
+    [],
+    ...resumeArray
+  ]);
+
+  ws2["!merges"]=[{s:{r:0,c:0},e:{r:0,c:1}}];
+  ws2["!cols"]=[{wch:40},{wch:18}];
+
+  Object.keys(ws2).forEach(a=>{
+    if(a[0]==="!") return;
+    ws2[a].s={
+      border:{
+        top:{style:"thin"},
+        bottom:{style:"thin"},
+        left:{style:"thin"},
+        right:{style:"thin"}
+      },
+      alignment:{
+        horizontal:a.endsWith("B")?"right":"left",
+        vertical:"center"
       }
     };
   });
 
   XLSX.utils.book_append_sheet(wb, ws2, "Rangkuman");
 
-  /* ================= SIMPAN ================= */
-  XLSX.writeFile(wb, "Laporan_Rasio_Elektrifikasi.xlsx");
+  XLSX.writeFile(wb,"Laporan_Rasio_Elektrifikasi.xlsx");
 }
+
 
 function exportPDF(){
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF("landscape", "mm", "a4");
-
-  document.body.classList.add("mode-pdf");
+  const doc = new jsPDF("landscape","mm","a4");
 
   /* ===== JUDUL ===== */
   doc.setFontSize(11);
   doc.text(
     "RASIO ELEKTRIFIKASI DAN RASIO KELURAHAN/DESA BERLISTRIK BARITO TIMUR",
-    148, 9, { align:"center" }
+    148, 9, {align:"center"}
   );
   doc.setFontSize(9);
   doc.text(
     "PROVINSI KALIMANTAN TENGAH – " + periodeText,
-    148, 14, { align:"center" }
+    148, 14, {align:"center"}
   );
 
-  /* ===== TABEL 2 ===== */
   doc.autoTable({
     html:"#tblRekap",
     startY:18,
@@ -1064,7 +1033,9 @@ function exportPDF(){
       fontSize:7.2,
       cellPadding:1.4,
       halign:"center",
-      valign:"middle"
+      valign:"middle",
+      lineWidth:0.3,
+      lineColor:[0,0,0]
     },
 
     headStyles:{
@@ -1072,7 +1043,9 @@ function exportPDF(){
       textColor:0,
       fontStyle:"bold",
       lineWidth:0.3,
-      lineColor:[0,0,0]
+      lineColor:[0,0,0],
+      halign:"center",
+      valign:"middle"
     },
 
     columnStyles:{
@@ -1081,62 +1054,44 @@ function exportPDF(){
 
     didParseCell(data){
       if(data.section==="body"){
+        // 0 → "-"
         if(data.cell.raw === 0 || data.cell.raw === "0"){
           data.cell.text=["-"];
         }
 
+        // persen → 2 desimal
         if(typeof data.cell.raw==="string" && data.cell.raw.includes("%")){
           const n = Number(
             data.cell.raw.replace("%","").replace(",",".")
           );
           if(!isNaN(n)){
-            data.cell.text=[
-              n.toLocaleString("id-ID",{
-                minimumFractionDigits:2,
-                maximumFractionDigits:2
-              })+" %"
-            ];
+            data.cell.text=[n.toFixed(2).replace(".",",")+" %"];
           }
         }
 
+        // kecamatan font lebih kecil
         if(data.column.index===1){
-          data.cell.styles.fontSize=6.6; // Kecamatan
+          data.cell.styles.fontSize=6.6;
         }
       }
     }
   });
 
-  /* ===== RESUME ===== */
+  // ===== RESUME =====
   doc.autoTable({
     startY:doc.lastAutoTable.finalY+4,
-    body:resumeArray.map(r=>[r[0],r[1]]),
+    body:resumeArray.map(r=>[r[0], r[1]]),
     theme:"grid",
     tableWidth:120,
     margin:{left:14},
-
-    styles:{fontSize:8,cellPadding:2},
-    columnStyles:{
-      0:{cellWidth:80,halign:"left"},
-      1:{cellWidth:40,halign:"right"}
+    styles:{
+      fontSize:8,
+      cellPadding:2,
+      lineWidth:0.3
     },
-
-    didParseCell(data){
-      if(data.cell.raw === 0 || data.cell.raw==="0"){
-        data.cell.text=["-"];
-      }
-      if(typeof data.cell.raw==="string" && data.cell.raw.includes("%")){
-        const n = Number(
-          data.cell.raw.replace("%","").replace(",",".")
-        );
-        if(!isNaN(n)){
-          data.cell.text=[
-            n.toLocaleString("id-ID",{
-              minimumFractionDigits:2,
-              maximumFractionDigits:2
-            })+" %"
-          ];
-        }
-      }
+    columnStyles:{
+      0:{cellWidth:80, halign:"left"},
+      1:{cellWidth:40, halign:"right"}
     }
   });
 
