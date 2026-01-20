@@ -209,6 +209,51 @@ footer{
   font-size:12px;
   color:#9ecbff;
 }
+   /* ===================== RESUME KABUPATEN ===================== */
+.resume-box{
+  margin-top:28px;
+  padding:18px 20px;
+  background:linear-gradient(180deg,#061a30,#040e1f);
+  border-radius:18px;
+  border:1px solid rgba(0,180,255,.25);
+  box-shadow:0 0 24px rgba(0,180,255,.25);
+}
+
+.resume-box h3{
+  margin:0 0 16px;
+  color:#ffe08a;
+  text-align:center;
+  font-size:16px;
+  letter-spacing:.5px;
+}
+
+.resume-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:14px 20px;
+}
+
+.resume-grid div{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 12px;
+  background:#071a33;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.08);
+}
+
+.resume-grid span{
+  font-size:13px;
+  color:#9ecbff;
+}
+
+.resume-grid b{
+  font-size:15px;
+  color:#00e5ff;
+  font-weight:900;
+}
+
 </style>
 </head>
 
@@ -379,6 +424,24 @@ footer{
   </div>
 </div>
 
+</div>
+<!-- ===================== RESUME KABUPATEN ===================== -->
+<div class="resume-box" id="resumeBox" style="display:none">
+  <h3>Rangkuman Kabupaten Barito Timur</h3>
+
+  <div class="resume-grid">
+    <div><span>Jumlah Kecamatan</span><b id="rKec"></b></div>
+    <div><span>Jumlah Desa</span><b id="rDesa"></b></div>
+    <div><span>Jumlah Kelurahan</span><b id="rKel"></b></div>
+    <div><span>Jumlah Desa/Kelurahan Berlistrik</span><b id="rDesaListrik"></b></div>
+
+    <div><span>Rasio Desa/Kelurahan Berlistrik</span><b id="rRasioDesa"></b></div>
+
+    <div><span>Rasio Elektrifikasi PLN</span><b id="rPln"></b></div>
+    <div><span>Rasio Elektrifikasi Non PLN</span><b id="rNon"></b></div>
+    <div><span>Rasio Elektrifikasi Kabupaten</span><b id="rTotal"></b></div>
+    <div><span>Persentase Rumah Tangga Tidak Berlistrik</span><b id="rTidak"></b></div>
+  </div>
 </div>
 
 <footer>
@@ -568,6 +631,56 @@ function loadLaporan(){
 
     }); // end fetch
 }
+   /* ===================== RESUME KABUPATEN ===================== */
+let totalKec = Object.keys(map).length;
+let totalDesa = 0;
+let totalKel  = 0;
+let totalDesaListrik = 0;
+
+let totRtPln = 0;
+let totRtNon = 0;
+let totRtListrik = 0;
+let totRtTidak = 0;
+let totRt = 0;
+
+Object.values(map).forEach(m=>{
+  totalDesa += m.jumlahDesa;
+  totalKel  += m.jumlahKel;
+  totalDesaListrik += m.desaBerlistrik;
+
+  totRtPln += m.rtPln;
+  totRtNon += m.rtNon;
+  totRtListrik += m.rtBerlistrik;
+  totRtTidak += m.rtTidak;
+  totRt += m.total;
+});
+
+/* === RASIO === */
+const rasioDesa =
+  (totalDesa + totalKel) > 0
+    ? totalDesaListrik / (totalDesa + totalKel)
+    : 0;
+
+const rasioPln = totRt ? totRtPln / totRt : 0;
+const rasioNon = totRt ? totRtNon / totRt : 0;
+const rasioTot = totRt ? totRtListrik / totRt : 0;
+const rasioTidak = totRt ? totRtTidak / totRt : 0;
+
+/* === TAMPILKAN === */
+document.getElementById("resumeBox").style.display = "block";
+
+document.getElementById("rKec").innerText = totalKec + " kecamatan";
+document.getElementById("rDesa").innerText = totalDesa + " desa";
+document.getElementById("rKel").innerText  = totalKel + " kelurahan";
+document.getElementById("rDesaListrik").innerText =
+  totalDesaListrik + " desa/kelurahan";
+
+document.getElementById("rRasioDesa").innerText = formatPersen(rasioDesa);
+document.getElementById("rPln").innerText   = formatPersen(rasioPln);
+document.getElementById("rNon").innerText   = formatPersen(rasioNon);
+document.getElementById("rTotal").innerText = formatPersen(rasioTot);
+document.getElementById("rTidak").innerText = formatPersen(rasioTidak);
+
 </script>
 
 
