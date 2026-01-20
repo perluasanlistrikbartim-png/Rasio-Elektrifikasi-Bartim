@@ -314,146 +314,129 @@ footer{
     <div class="value" id="infoValue"></div>
   </div>
 
-  <!-- TABLE -->
+  <!-- ===================== TABEL 1 ===================== -->
   <div class="box-table">
     <div class="table-scroll">
       <table id="tbl">
         <thead>
-  <tr>
-    <th rowspan="2">No</th>
-    <th rowspan="2">Kecamatan</th>
-    <th rowspan="2">Desa / Kelurahan</th>
-
-    <th colspan="2">Desa / Kelurahan Berlistrik</th>
-    <th colspan="3">Rumah Tangga Berlistrik</th>
-
-    <th rowspan="2">Jumlah Rumah Tangga<br>Belum Berlistrik</th>
-    <th rowspan="2">Total Rumah Tangga</th>
-
-    <th rowspan="2">Rasio Elektrifikasi PLN</th>
-    <th rowspan="2">Rasio Elektrifikasi Non PLN</th>
-    <th rowspan="2">Rasio Elektrifikasi</th>
-    <th rowspan="2">% Rumah Tangga Tidak Berlistrik</th>
-    <th rowspan="2">Keterangan</th>
-  </tr>
-
-  <tr>
-    <th>PLN</th>
-    <th>Non PLN</th>
-
-    <th>PLN</th>
-    <th>Non PLN</th>
-    <th>Jumlah</th>
-  </tr>
-</thead>
-
-
-
+          <tr>
+            <th rowspan="2">No</th>
+            <th rowspan="2">Kecamatan</th>
+            <th rowspan="2">Desa / Kelurahan</th>
+            <th colspan="2">Desa / Kelurahan Berlistrik</th>
+            <th colspan="3">Rumah Tangga Berlistrik</th>
+            <th rowspan="2">Jumlah Rumah Tangga<br>Belum Berlistrik</th>
+            <th rowspan="2">Total Rumah Tangga</th>
+            <th rowspan="2">Rasio Elektrifikasi PLN</th>
+            <th rowspan="2">Rasio Elektrifikasi Non PLN</th>
+            <th rowspan="2">Rasio Elektrifikasi</th>
+            <th rowspan="2">% Rumah Tangga Tidak Berlistrik</th>
+            <th rowspan="2">Keterangan</th>
+          </tr>
+          <tr>
+            <th>PLN</th>
+            <th>Non PLN</th>
+            <th>PLN</th>
+            <th>Non PLN</th>
+            <th>Jumlah</th>
+          </tr>
+        </thead>
         <tbody></tbody>
         <tfoot>
-  <tr>
-    <td colspan="3">TOTAL</td>
-
-    <td>-</td>
-    <td>-</td>
-
-    <td id="tPln"></td>
-    <td id="tNon"></td>
-    <td id="tBerlistrik"></td>
-
-    <td id="tTidak"></td>
-    <td id="tJml"></td>
-    <td></td>
-  </tr>
-</tfoot>
-
-
+          <tr>
+            <td colspan="3">TOTAL</td>
+            <td>-</td>
+            <td>-</td>
+            <td id="tPln"></td>
+            <td id="tNon"></td>
+            <td id="tBerlistrik"></td>
+            <td id="tTidak"></td>
+            <td id="tJml"></td>
+            <td colspan="5"></td>
+          </tr>
+        </tfoot>
       </table>
     </div>
   </div>
-<!-- ===================== JUDUL TABEL 2 ===================== -->
-<div class="laporan-title">
-  <div class="laporan-title-main">
-    RASIO ELEKTRIFIKASI DAN RASIO KELURAHAN/DESA BERLISTRIK BARITO TIMUR
-  </div>
-  <div class="laporan-title-sub">
-    PROVINSI KALIMANTAN TENGAH
-  </div>
-  <div class="laporan-title-periode">
-    (REKAP PER KECAMATAN)
-  </div>
-</div>
 
-<!-- ===================== TABEL 2 ===================== -->
-<div class="box-table">
-  <div class="table-scroll">
-    <table id="tblRekap">
-      <thead>
-  <tr>
-    <th rowspan="2">No</th>
-    <th rowspan="2">Kecamatan</th>
-    <th rowspan="2">Jumlah Kelurahan</th>
-    <th rowspan="2">Jumlah Desa</th>
+  <!-- ===== JARAK ANTAR TABEL ===== -->
+  <div style="height:32px"></div>
 
-    <!-- DESA / KELURAHAN BERLISTRIK -->
-    <th colspan="2">Desa / Kelurahan Berlistrik</th>
+  <!-- ===================== WRAPPER REKAP ===================== -->
+  <div class="rekap-wrapper">
 
-    <!-- DESA / KELURAHAN BELUM BERLISTRIK (BARU) -->
-    <th rowspan="2">Desa / Kelurahan<br>Belum Berlistrik</th>
+    <!-- JUDUL TABEL 2 -->
+    <div class="laporan-title">
+      <div class="laporan-title-main">
+        RASIO ELEKTRIFIKASI DAN RASIO KELURAHAN/DESA BERLISTRIK BARITO TIMUR
+      </div>
+      <div class="laporan-title-sub">
+        PROVINSI KALIMANTAN TENGAH
+      </div>
+      <div class="laporan-title-periode">
+        (REKAP PER KECAMATAN)
+      </div>
+    </div>
 
-    <!-- RUMAH TANGGA BERLISTRIK -->
-    <th colspan="3">Rumah Tangga Berlistrik</th>
+    <!-- ===================== TABEL 2 ===================== -->
+    <div class="box-table">
+      <div class="table-scroll">
+        <table id="tblRekap">
+          <thead>
+            <tr>
+              <th rowspan="2">No</th>
+              <th rowspan="2">Kecamatan</th>
+              <th rowspan="2">Jumlah Kelurahan</th>
+              <th rowspan="2">Jumlah Desa</th>
+              <th colspan="2">Desa / Kelurahan Berlistrik</th>
+              <th rowspan="2">Desa / Kelurahan<br>Belum Berlistrik</th>
+              <th colspan="3">Rumah Tangga Berlistrik</th>
+              <th rowspan="2">Jumlah Rumah Tangga<br>Belum Berlistrik</th>
+              <th rowspan="2">Total Rumah Tangga</th>
+              <th rowspan="2">Rasio Elektrifikasi PLN</th>
+              <th rowspan="2">Rasio Elektrifikasi Non PLN</th>
+              <th rowspan="2">Rasio Elektrifikasi</th>
+              <th rowspan="2">Rasio Desa Berlistrik</th>
+            </tr>
+            <tr>
+              <th>PLN</th>
+              <th>Non PLN</th>
+              <th>PLN</th>
+              <th>Non PLN</th>
+              <th>Jumlah</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="16" style="text-align:center;color:#9ecbff">
+                Data rekap kecamatan akan tampil setelah perhitungan
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-    <th rowspan="2">Jumlah Rumah Tangga<br>Belum Berlistrik</th>
-    <th rowspan="2">Total Rumah Tangga</th>
+    <!-- ===================== RESUME (TABEL 3) ===================== -->
+    <div class="resume-box" id="resumeBox" style="display:none">
+      <h3>Rangkuman Kabupaten Barito Timur</h3>
+      <table class="resume-table">
+        <tr><td>1</td><td>Jumlah Kecamatan</td><td id="rKec"></td></tr>
+        <tr><td>2</td><td>Jumlah Kelurahan</td><td id="rKel"></td></tr>
+        <tr><td>3</td><td>Jumlah Desa</td><td id="rDesa"></td></tr>
+        <tr><td>4</td><td>Desa/Kelurahan Berlistrik</td><td id="rDesaListrik"></td></tr>
+        <tr><td>5</td><td>Rasio Desa/Kelurahan Berlistrik</td><td id="rRasioDesa"></td></tr>
+        <tr><td>6</td><td>Rasio Elektrifikasi PLN</td><td id="rPln"></td></tr>
+        <tr><td>7</td><td>Rasio Elektrifikasi Non PLN</td><td id="rNon"></td></tr>
+        <tr><td>8</td><td>Rasio Elektrifikasi Kabupaten</td><td id="rTotal"></td></tr>
+        <tr><td>9</td><td>Persentase RT Tidak Berlistrik</td><td id="rTidak"></td></tr>
+      </table>
+    </div>
 
-    <th rowspan="2">Rasio Elektrifikasi PLN</th>
-    <th rowspan="2">Rasio Elektrifikasi Non PLN</th>
-    <th rowspan="2">Rasio Elektrifikasi</th>
-    <th rowspan="2">Rasio Desa Berlistrik</th>
-  </tr>
+  </div><!-- END rekap-wrapper -->
 
-  <tr>
-    <!-- Sub kolom Desa Berlistrik -->
-    <th>PLN</th>
-    <th>Non PLN</th>
+</div><!-- END container -->
 
-    <!-- Sub kolom RT Berlistrik -->
-    <th>PLN</th>
-    <th>Non PLN</th>
-    <th>Jumlah</th>
-  </tr>
-</thead>
-
-
-      <tbody>
-        <!-- BARIS CONTOH AGAR TABEL TERLIHAT -->
-        <tr>
-          <td colspan="15" style="text-align:center;color:#9ecbff">
-            Data rekap kecamatan akan tampil setelah perhitungan
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-</div>
-<div class="resume-box" id="resumeBox" style="display:none">
-  <h3>Rangkuman Kabupaten Barito Timur</h3>
-
-  <table class="resume-table">
-    <tr><td>Jumlah Kecamatan</td><td>:</td><td id="rKec"></td></tr>
-    <tr><td>Jumlah Kelurahan</td><td>:</td><td id="rKel"></td></tr>
-    <tr><td>Jumlah Desa</td><td>:</td><td id="rDesa"></td></tr>
-    <tr><td>Desa/Kelurahan Berlistrik</td><td>:</td><td id="rDesaListrik"></td></tr>
-    <tr><td>Rasio Desa/Kelurahan Berlistrik</td><td>:</td><td id="rRasioDesa"></td></tr>
-    <tr><td>Rasio Elektrifikasi PLN</td><td>:</td><td id="rPln"></td></tr>
-    <tr><td>Rasio Elektrifikasi Non PLN</td><td>:</td><td id="rNon"></td></tr>
-    <tr><td>Rasio Elektrifikasi Kabupaten</td><td>:</td><td id="rTotal"></td></tr>
-    <tr><td>Persentase RT Tidak Berlistrik</td><td>:</td><td id="rTidak"></td></tr>
-  </table>
-</div>
 
 
 <footer>
