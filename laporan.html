@@ -490,6 +490,34 @@ th,td{
     margin-top:16px;
   }
 }
+body.mode-pdf{
+  background:#fff !important;
+  color:#000 !important;
+}
+
+body.mode-pdf *{
+  box-shadow:none !important;
+  border-radius:0 !important;
+}
+
+body.mode-pdf th{
+  background:#cfe2f3 !important;
+  color:#000 !important;
+  border:1px solid #000;
+}
+
+body.mode-pdf td{
+  border:1px solid #000;
+}
+
+body.mode-pdf .table-scroll{
+  overflow:visible !important;
+  max-height:none !important;
+}
+
+body.mode-pdf thead th{
+  position:static !important;
+}
 
 </style>
 
@@ -603,12 +631,19 @@ th,td{
       </div>
     </div>
 <div class="export-box">
-  <button class="export-btn">⬇ Export</button>
-  <div class="export-menu">
-    <div onclick="exportPDF()">📄 Export PDF (A4)</div>
-    <div onclick="exportExcel()">📊 Export Excel</div>
+  <button onclick="toggleExport()">⬇ Export</button>
+  <div id="exportMenu" style="display:none">
+    <button onclick="exportExcel()">📊 Excel</button>
+    <button onclick="exportPDF()">📄 PDF</button>
   </div>
 </div>
+
+<script>
+function toggleExport(){
+  const m = document.getElementById("exportMenu");
+  m.style.display = m.style.display==="block" ? "none":"block";
+}
+</script>
 
     <!-- ===================== TABEL 2 ===================== -->
     <div class="box-table">
@@ -912,97 +947,105 @@ document.getElementById("rTidak").innerText = formatPersen(rasioTidak);
 }
 
 function exportPDF(){
-  document.body.classList.add("mode-print");
-
-  const el = document.querySelector(".rekap-wrapper");
+  document.body.classList.add("mode-pdf");
 
   html2pdf().set({
     margin:8,
-    filename:'Laporan_Rasio_Elektrifikasi_Bartim.pdf',
-    image:{ type:'jpeg', quality:0.98 },
+    filename:"Laporan_Rasio_Elektrifikasi.pdf",
+    image:{type:"jpeg", quality:1},
     html2canvas:{
       scale:2,
-      scrollY:0,
-      useCORS:true
+      backgroundColor:"#ffffff"
     },
     jsPDF:{
-      unit:'mm',
-      format:'a4',
-      orientation:'landscape'
+      unit:"mm",
+      format:"a4",
+      orientation:"landscape"
     }
-  }).from(el).save().then(()=>{
-    document.body.classList.remove("mode-print");
-  });
+  }).from(document.querySelector(".rekap-wrapper"))
+    .save()
+    .then(()=>{
+      document.body.classList.remove("mode-pdf");
+    });
 }
 
 
 function exportExcel(){
-  const table = document.getElementById("tblRekap");
-
   const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.table_to_sheet(table,{raw:true});
 
-  /* ================= MERGE HEADER ================= */
-  ws['!merges'] = [
-    {s:{r:0,c:4}, e:{r:0,c:5}},
-    {s:{r:0,c:7}, e:{r:0,c:9}}
+  /* ================= HEADER LAPORAN ================= */
+  const header = [
+    ["", "", "RASIO ELEKTRIFIKASI DAN RASIO KELURAHAN/DESA BERLISTRIK BARITO TIMUR"],
+    ["", "", "PROVINSI KALIMANTAN TENGAH"],
+    ["", "", "TRIWULAN IV TAHUN 2025"],
+    []
   ];
 
-  /* ================= FREEZE PANE ================= */
-  ws['!freeze'] = {
-    xSplit:2,
-    ySplit:2,
-    topLeftCell:"C3"
-  };
-
-  /* ================= WIDTH KOLUMN ================= */
-  ws['!cols'] = [
-    {wch:5},   // No
-    {wch:20},  // Kecamatan
-    {wch:12},
-    {wch:12},
-    {wch:10},
-    {wch:10},
-    {wch:14},
-    {wch:10},
-    {wch:10},
-    {wch:12},
-    {wch:14},
-    {wch:14},
-    {wch:16},
-    {wch:16},
-    {wch:14},
-    {wch:18}
-  ];
-
-  /* ================= BORDER SEMUA SEL ================= */
-  Object.keys(ws).forEach(cell=>{
-    if(cell[0] === '!') return;
-    ws[cell].s = {
-      border:{
-        top:{style:"thin"},
-        bottom:{style:"thin"},
-        left:{style:"thin"},
-        right:{style:"thin"}
-      },
-      alignment:{
-        vertical:"center",
-        horizontal:"center",
-        wrapText:true
-      }
-    };
+  /* ================= AMBIL DATA TABEL 2 ================= */
+  const table = [];
+  document.querySelectorAll("#tblRekap tr").forEach(tr=>{
+    const row = [];
+    tr.querySelectorAll("th,td").forEach(td=>{
+      row.push(td.innerText);
+    });
+    table.push(row);
   });
 
+  /* ================= GABUNG ================= */
+  const ws = XLSX.utils.aoa_to_sheet([...header, ...table]);
+
+  /* ================= MERGE HEADER ================= */
+  ws["!merges"] = [
+    {s:{r:0,c:2}, e:{r:0,c:15}},
+    {s:{r:1,c:2}, e:{r:1,c:15}},
+    {s:{r:2,c:2}, e:{r:2,c:15}}
+  ];
+
+  /* ================= STYLE ================= */
+  const headerStyle = {
+    font:{bold:true},
+    alignment:{horizontal:"center", vertical:"center"},
+    fill:{fgColor:{rgb:"CFE2F3"}},
+    border:{
+      top:{style:"thin"},
+      bottom:{style:"thin"},
+      left:{style:"thin"},
+      right:{style:"thin"}
+    }
+  };
+
+  Object.keys(ws).forEach(cell=>{
+    if(cell[0] !== "!"){
+      ws[cell].s = headerStyle;
+    }
+  });
+
+  /* ================= LEBAR KOLOM ================= */
+  ws["!cols"] = Array(16).fill({wch:14});
+
+  /* ================= PRINT SETUP ================= */
+  ws["!pageSetup"] = {
+    paper:9,        // A4
+    orientation:"landscape",
+    scale:80,
+    fitToHeight:1,
+    fitToWidth:1
+  };
+
+  ws["!freeze"] = { xSplit:2, ySplit:7 }; // Freeze Kecamatan + header
+
   XLSX.utils.book_append_sheet(wb, ws, "Rekap Kecamatan");
-  XLSX.writeFile(wb,"Rekap_Rasio_Elektrifikasi_Bartim.xlsx");
+  XLSX.writeFile(wb, "Laporan_Rasio_Elektrifikasi.xlsx");
 }
+
 
 
 
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+
 
 
 </body>
