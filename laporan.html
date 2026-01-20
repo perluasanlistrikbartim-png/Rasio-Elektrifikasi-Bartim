@@ -172,17 +172,18 @@ th,td{
 }
 
 /* HEADER TABEL 1 → STICKY SATU LAPIS SAJA */
+/* ===============================
+   TABEL 1 – TANPA STICKY (STABIL)
+================================ */
 #tbl thead th{
+  position:static;
   background:#0b2442;
   color:#7dd3fc;
+  white-space:normal;
   text-align:center;
   line-height:1.25;
-  vertical-align:middle;
-  white-space:normal;
-  position:sticky;
-  top:0;
-  z-index:4;
 }
+
 
 /* BODY TABEL 1 */
 #tbl td{
@@ -203,42 +204,153 @@ th,td{
 #tbl th:nth-child(14){ width:120px; }
 
 /* =====================================================
-   TABEL 2 – REKAP KECAMATAN (2 BARIS STICKY)
+   TABEL 2 – REKAP KECAMATAN (FINAL PRODUKSI)
+   - Sticky 2 baris stabil
+   - Tidak overlap
+   - Aman mobile
 ===================================================== */
 #tblRekap{
-  table-layout:fixed;
+  width:100%;
+  table-layout:fixed;          /* WAJIB untuk sticky stabil */
+  border-collapse:separate;
+  border-spacing:0;
 }
 
+/* ===================== CELL UMUM ===================== */
 #tblRekap th,
 #tblRekap td{
-  text-align:center;
-  white-space:nowrap;
+  padding:8px 10px;
+  border-bottom:1px solid rgba(0,180,255,.3);
+  font-size:13px;
 }
 
-/* HEADER TABEL 2 */
+/* ===================== HEADER ===================== */
 #tblRekap thead th{
   background:#0b2442;
   color:#7dd3fc;
-  white-space:normal;
+  text-align:center;
+  white-space:normal;          /* BOLEH WRAP */
   line-height:1.25;
+  vertical-align:middle;
   position:sticky;
-  z-index:5;
 }
 
+/* BARIS HEADER 1 */
 #tblRekap thead tr:first-child th{
   top:0;
+  z-index:6;
+  height:38px;
 }
 
+/* BARIS HEADER 2 */
 #tblRekap thead tr:nth-child(2) th{
   top:38px;
-  z-index:4;
+  z-index:5;
+  height:32px;
 }
 
-/* Kolom Rasio Desa Berlistrik */
-#tblRekap th:last-child,
-#tblRekap td:last-child{
-  min-width:120px;
+/* ===================== BODY ===================== */
+#tblRekap tbody td{
+  text-align:center;
+  white-space:nowrap;          /* DATA TIDAK PECAH */
 }
+
+/* Kecamatan rata kiri & boleh turun baris */
+#tblRekap tbody td:nth-child(2){
+  text-align:left;
+  white-space:normal;
+}
+
+/* ===================== LEBAR KOLOM (ANTI TABRAKAN) ===================== */
+#tblRekap th:nth-child(1),
+#tblRekap td:nth-child(1){ width:48px; }    /* No */
+
+#tblRekap th:nth-child(2),
+#tblRekap td:nth-child(2){ width:190px; }   /* Kecamatan */
+
+#tblRekap th:nth-child(3),
+#tblRekap td:nth-child(3){ width:120px; }   /* Jumlah Kelurahan */
+
+#tblRekap th:nth-child(4),
+#tblRekap td:nth-child(4){ width:110px; }   /* Jumlah Desa */
+
+#tblRekap th:nth-child(5),
+#tblRekap td:nth-child(5){ width:90px; }    /* Desa PLN */
+
+#tblRekap th:nth-child(6),
+#tblRekap td:nth-child(6){ width:90px; }    /* Desa Non PLN */
+
+#tblRekap th:nth-child(7),
+#tblRekap td:nth-child(7){ width:140px; }   /* Desa Belum Berlistrik */
+
+#tblRekap th:nth-child(8),
+#tblRekap td:nth-child(8){ width:100px; }   /* RT PLN */
+
+#tblRekap th:nth-child(9),
+#tblRekap td:nth-child(9){ width:100px; }   /* RT Non PLN */
+
+#tblRekap th:nth-child(10),
+#tblRekap td:nth-child(10){ width:110px; }  /* RT Jumlah */
+
+#tblRekap th:nth-child(11),
+#tblRekap td:nth-child(11){ width:150px; }  /* RT Belum Berlistrik */
+
+#tblRekap th:nth-child(12),
+#tblRekap td:nth-child(12){ width:120px; }  /* Total RT */
+
+#tblRekap th:nth-child(13),
+#tblRekap td:nth-child(13){ width:120px; }  /* Rasio PLN */
+
+#tblRekap th:nth-child(14),
+#tblRekap td:nth-child(14){ width:140px; }  /* Rasio Non PLN */
+
+#tblRekap th:nth-child(15),
+#tblRekap td:nth-child(15){ width:130px; }  /* Rasio Elektrifikasi */
+
+#tblRekap th:nth-child(16),
+#tblRekap td:nth-child(16){ width:150px; }  /* Rasio Desa Berlistrik */
+
+/* ===================== MOBILE TWEAK ===================== */
+@media(max-width:768px){
+  #tblRekap th,
+  #tblRekap td{
+    font-size:12px;
+    padding:6px 8px;
+  }
+
+  #tblRekap thead tr:first-child th{
+    height:42px;
+  }
+
+  #tblRekap thead tr:nth-child(2) th{
+    top:42px;
+  }
+}
+/* =====================================================
+   FREEZE KOLOM KIRI (NO + KECAMATAN) – TABEL 2
+===================================================== */
+#tblRekap th:nth-child(1),
+#tblRekap td:nth-child(1){
+  position:sticky;
+  left:0;
+  z-index:6;
+  background:#0b2442;
+}
+
+#tblRekap th:nth-child(2),
+#tblRekap td:nth-child(2){
+  position:sticky;
+  left:48px; /* lebar kolom No */
+  z-index:6;
+  background:#0b2442;
+}
+
+/* Body beda warna sedikit */
+#tblRekap tbody td:nth-child(1),
+#tblRekap tbody td:nth-child(2){
+  background:#071a33;
+}
+
 
 /* =====================================================
    RESUME KABUPATEN (FIT KIRI)
@@ -733,8 +845,57 @@ document.getElementById("rTidak").innerText = formatPersen(rasioTidak);
     }); // end fetch
 }
 
+function exportPDF(){
+  const element = document.querySelector(".rekap-wrapper");
+
+  const opt = {
+    margin:       10,
+    filename:     'Rekap_Rasio_Elektrifikasi_Barito_Timur.pdf',
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS:true },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+  };
+
+  html2pdf().set(opt).from(element).save();
+}
+
+function exportExcel(){
+  const table = document.getElementById("tblRekap");
+  const wb = XLSX.utils.book_new();
+
+  // Convert table → sheet
+  const ws = XLSX.utils.table_to_sheet(table, { raw:true });
+
+  /* ===== MERGE HEADER ===== */
+  ws['!merges'] = [
+    { s:{r:0,c:4}, e:{r:0,c:5} },   // Desa Berlistrik
+    { s:{r:0,c:7}, e:{r:0,c:9} }    // RT Berlistrik
+  ];
+
+  /* ===== FREEZE PANE ===== */
+  ws['!freeze'] = {
+    xSplit: 2,  // freeze kolom No + Kecamatan
+    ySplit: 2,  // freeze 2 baris header
+    topLeftCell: "C3"
+  };
+
+  /* ===== AUTO WIDTH ===== */
+  ws['!cols'] = Array(16).fill({ wch:18 });
+
+  XLSX.utils.book_append_sheet(wb, ws, "Rekap Kecamatan");
+
+  XLSX.writeFile(
+    wb,
+    "Rekap_Rasio_Elektrifikasi_Barito_Timur.xlsx"
+  );
+}
+
+
+
 </script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 
 </body>
