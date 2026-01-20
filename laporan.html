@@ -872,32 +872,6 @@ function loadLaporan(){
     });
 }
 
-/* =====================================================
-   EXPORT PDF (A4 LANDSCAPE – 1 HALAMAN)
-===================================================== */
-
-
-
-
-
-  /* ================= FOOTER ================= */
-  doc.setFontSize(8);
-  doc.text(
-    "Sumber Data: Kabupaten Barito Timur",
-    14,
-    200
-  );
-
-  document.body.classList.remove("mode-pdf");
-  doc.save("Laporan_Rasio_Elektrifikasi.pdf");
-}
-
-
-
-/* =====================================================
-   EXPORT EXCEL (MERGE + BORDER + FREEZE)
-===================================================== */
-
 
 </script>
 
