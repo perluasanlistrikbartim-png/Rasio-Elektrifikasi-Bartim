@@ -431,21 +431,23 @@ function loadLaporan(){
     /* =====================================================
        ===================== TABEL 1 ======================
     ===================================================== */
-    const tb1 = document.querySelector("#tbl tbody");
-    tb1.innerHTML = "";
+   /* ===================== TABEL 1 ====================== */
+const tb1 = document.querySelector("#tbl tbody");
+tb1.innerHTML = "";
 
-    let sPln=0, sNon=0, sBerlistrik=0, sTidak=0, sJml=0;
+let sPln=0, sNon=0, sBerlistrik=0, sTidak=0, sJml=0;
 
-    res.data.forEach((d,i)=>{
-      const rtBerlistrik = (+d.rt_pln || 0) + (+d.rt_non_pln || 0);
+res.data.forEach((d,i)=>{
+  const rtBerlistrik =
+    (+d.rt_pln || 0) + (+d.rt_non_pln || 0);
 
-      sPln += +d.rt_pln || 0;
-      sNon += +d.rt_non_pln || 0;
-      sBerlistrik += rtBerlistrik;
-      sTidak += +d.rt_non_listrik || 0;
-      sJml += +d.jumlah || 0;
+  sPln += +d.rt_pln || 0;
+  sNon += +d.rt_non_pln || 0;
+  sBerlistrik += rtBerlistrik;
+  sTidak += +d.rt_non_listrik || 0;
+  sJml += +d.jumlah || 0;
 
-      tb1.innerHTML += `
+  tb1.innerHTML += `
 <tr>
   <td>${i+1}</td>
   <td>${d.kecamatan}</td>
@@ -460,91 +462,110 @@ function loadLaporan(){
 
   <td>${d.rt_non_listrik}</td>
   <td>${d.jumlah}</td>
-  <td></td>
+
+  <td>${formatPersen(d.persen_pln)}</td>
+  <td>${formatPersen(d.persen_non_pln)}</td>
+  <td>${formatPersen(d.persen_berlistrik)}</td>
+  <td>${formatPersen(d.persen_tidak_berlistrik)}</td>
+
+  <td>-</td>
 </tr>`;
-    });
+});
 
-    document.getElementById("tPln").innerText = sPln;
-    document.getElementById("tNon").innerText = sNon;
-    document.getElementById("tBerlistrik").innerText = sBerlistrik;
-    document.getElementById("tTidak").innerText = sTidak;
-    document.getElementById("tJml").innerText = sJml;
+/* === TOTAL === */
+document.getElementById("tPln").innerText = sPln;
+document.getElementById("tNon").innerText = sNon;
+document.getElementById("tBerlistrik").innerText = sBerlistrik;
+document.getElementById("tTidak").innerText = sTidak;
+document.getElementById("tJml").innerText = sJml;
 
-    document.getElementById("info").style.display = "block";
-    document.getElementById("infoTitle").innerText =
-      `Laporan Resmi Triwulan ${triwulan} Tahun ${tahun}`;
-    document.getElementById("infoValue").innerText =
-      `${res.total_desa} Desa/Kelurahan`;
+/* === INFO === */
+document.getElementById("info").style.display = "block";
+document.getElementById("infoTitle").innerText =
+  `Laporan Resmi Triwulan ${triwulan} Tahun ${tahun}`;
+document.getElementById("infoValue").innerText =
+  `${res.total_desa} Desa/Kelurahan`;
 
-    /* =====================================================
-       ===================== TABEL 2 ======================
-       REKAP PER KECAMATAN (FINAL)
-    ===================================================== */
-    const tb2 = document.querySelector("#tblRekap tbody");
-    if(!tb2) return;
-    tb2.innerHTML = "";
+   /* =====================================================
+   ===================== TABEL 2 ======================
+   REKAP PER KECAMATAN (FINAL – FIX)
+===================================================== */
+const tb2 = document.querySelector("#tblRekap tbody");
+if(!tb2) return;
+tb2.innerHTML = "";
 
-    const map = {};
+const map = {};
 
-    res.data.forEach(d=>{
-      if(!map[d.kecamatan]){
-        map[d.kecamatan] = {
-          desaPln:0,
-          desaNon:0,
-          jumlahDesa:0,
-          jumlahKel:0,
-          rtPln:0,
-          rtNon:0,
-          rtBerlistrik:0,
-          rtTidak:0,
-          total:0
-        };
-      }
+/* ===================== AGREGASI ===================== */
+res.data.forEach(d=>{
+  if(!map[d.kecamatan]){
+    map[d.kecamatan] = {
+      jumlahDesa: 0,
+      jumlahKel: 0,
 
-      const m = map[d.kecamatan];
+      desaPln: 0,
+      desaNon: 0,
+      desaBerlistrik: 0,
 
-      // jumlah desa / kelurahan
-      m.jumlahDesa++;
-      if(d.desa_pln === "Ya") m.desaPln++;
-      if(d.desa_non_pln === "Ya") m.desaNon++;
+      rtPln: 0,
+      rtNon: 0,
+      rtBerlistrik: 0,
+      rtTidak: 0,
+      total: 0
+    };
+  }
 
-      // RT
-      m.rtPln += +d.rt_pln || 0;
-      m.rtNon += +d.rt_non_pln || 0;
-      m.rtBerlistrik += (+d.rt_pln || 0) + (+d.rt_non_pln || 0);
-      m.rtTidak += +d.rt_non_listrik || 0;
-      m.total += +d.jumlah || 0;
-    });
+  const m = map[d.kecamatan];
 
-    let no = 1;
-    Object.keys(map).forEach(kec=>{
-      const m = map[kec];
+  /* === HITUNG DESA / KELURAHAN DARI NAMA === */
+  if(/^Desa\s/i.test(d.desa)) {
+    m.jumlahDesa++;
+  } else if(/^Kelurahan\s/i.test(d.desa)) {
+    m.jumlahKel++;
+  }
 
-      /* ===== STATUS DESA BELUM BERLISTRIK ===== */
-      const desaBelum =
-        (m.desaPln > 0 || m.desaNon > 0)
-        ? "-"
-        : (m.jumlahDesa + m.jumlahKel);
+  /* === STATUS DESA/KELURAHAN BERLISTRIK === */
+  const isBerlistrik =
+    d.desa_pln === "Ya" || d.desa_non_pln === "Ya";
 
-      /* ===== RASIO ===== */
-      const rPln = m.total ? m.rtPln / m.total : 0;
-      const rNon = m.total ? m.rtNon / m.total : 0;
-      const rTot = m.total ? m.rtBerlistrik / m.total : 0;
+  if(isBerlistrik) m.desaBerlistrik++;
+  if(d.desa_pln === "Ya") m.desaPln++;
+  if(d.desa_non_pln === "Ya") m.desaNon++;
 
-      // 🔥 RASIO DESA BERLISTRIK (FINAL SESUAI KESEPAKATAN)
-      const rDesa =
-        desaBelum === "-"
-        ? (m.jumlahDesa + m.jumlahKel) > 0
-            ? (m.desaPln + m.desaNon) / (m.jumlahDesa + m.jumlahKel)
-            : 0
-        : 1; // 100%
+  /* === RT === */
+  m.rtPln += +d.rt_pln || 0;
+  m.rtNon += +d.rt_non_pln || 0;
+  m.rtBerlistrik += (+d.rt_pln || 0) + (+d.rt_non_pln || 0);
+  m.rtTidak += +d.rt_non_listrik || 0;
+  m.total += +d.jumlah || 0;
+});
 
-      tb2.innerHTML += `
+/* ===================== RENDER ===================== */
+let no = 1;
+Object.keys(map).forEach(kec=>{
+  const m = map[kec];
+  const totalWilayah = m.jumlahDesa + m.jumlahKel;
+
+  /* === DESA/KELURAHAN BELUM BERLISTRIK === */
+  const desaBelum =
+    m.desaBerlistrik < totalWilayah
+      ? totalWilayah - m.desaBerlistrik
+      : "-";
+
+  /* === RASIO === */
+  const rPln  = m.total ? m.rtPln / m.total : 0;
+  const rNon  = m.total ? m.rtNon / m.total : 0;
+  const rTot  = m.total ? m.rtBerlistrik / m.total : 0;
+  const rDesa = totalWilayah
+    ? m.desaBerlistrik / totalWilayah
+    : 0;
+
+  tb2.innerHTML += `
 <tr>
   <td>${no++}</td>
   <td>${kec}</td>
-  <td>${m.jumlahKel || "-"}</td>
-  <td>${m.jumlahDesa || "-"}</td>
+  <td>${m.jumlahKel}</td>
+  <td>${m.jumlahDesa}</td>
 
   <td>${m.desaPln}</td>
   <td>${m.desaNon}</td>
@@ -562,12 +583,12 @@ function loadLaporan(){
   <td>${formatPersen(rTot)}</td>
   <td>${formatPersen(rDesa)}</td>
 </tr>`;
-    });
+});
 
-    const jp = document.getElementById("judulPeriode");
-    if(jp) jp.innerText = `TRIWULAN ${triwulan} TAHUN ${tahun}`;
-  });
-}
+/* ===================== JUDUL PERIODE ===================== */
+const jp = document.getElementById("judulPeriode");
+if(jp) jp.innerText = `TRIWULAN ${triwulan} TAHUN ${tahun}`;
+
 </script>
 
 
