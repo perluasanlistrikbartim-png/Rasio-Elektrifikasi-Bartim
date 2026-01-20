@@ -883,140 +883,152 @@ function loadLaporan(){
 <script>
 function exportExcel(){
 
-  /* ================= VALIDASI ================= */
-  const srcTable = document.getElementById("tblRekap");
-  if(!srcTable){
-    alert("Tabel rekap belum tersedia");
+  if(!dataRekapArray.length){
+    alert("Data belum tersedia");
     return;
   }
 
-  /* ================= CLONE TABEL HTML ================= */
-  const table = srcTable.cloneNode(true);
-  table.querySelectorAll("*").forEach(el=>{
-    el.style.position="static";
-    el.style.left="";
-    el.style.top="";
-  });
-
-  /* ================= BUAT WORKBOOK ================= */
   const wb = XLSX.utils.book_new();
 
-  /* ================= KONVERSI TABEL ================= */
-  const ws = XLSX.utils.table_to_sheet(table,{raw:true});
-
-  /* ================= JUDUL ================= */
-  XLSX.utils.sheet_add_aoa(ws,[
+  /* =====================================================
+     HEADER & JUDUL
+  ===================================================== */
+  const aoa = [
     ["RASIO ELEKTRIFIKASI DAN RASIO KELURAHAN/DESA BERLISTRIK BARITO TIMUR"],
     ["PROVINSI KALIMANTAN TENGAH"],
     [periodeText],
-    []
-  ],{origin:"A1"});
-
-  /* ================= MERGE JUDUL ================= */
-  ws["!merges"]=[
-    {s:{r:0,c:0},e:{r:0,c:15}},
-    {s:{r:1,c:0},e:{r:1,c:15}},
-    {s:{r:2,c:0},e:{r:2,c:15}}
+    [],
+    // ===== HEADER BARIS 1 =====
+    [
+      "No","Kecamatan","Jumlah Kelurahan","Jumlah Desa",
+      "Desa / Kelurahan Berlistrik","","Desa / Kelurahan Belum Berlistrik",
+      "Rumah Tangga Berlistrik","","",
+      "Jumlah Rumah Tangga Belum Berlistrik",
+      "Total Rumah Tangga",
+      "Rasio Elektrifikasi PLN",
+      "Rasio Elektrifikasi Non PLN",
+      "Rasio Elektrifikasi",
+      "Rasio Desa Berlistrik"
+    ],
+    // ===== HEADER BARIS 2 =====
+    [
+      "","","","",
+      "PLN","Non PLN","",
+      "PLN","Non PLN","Jumlah",
+      "","",
+      "","","",""
+    ]
   ];
 
-  /* ================= FREEZE ================= */
-  ws["!freeze"]={xSplit:0,ySplit:6};
-
-  /* ================= LEBAR KOLOM ================= */
-  ws["!cols"]=[
-    {wch:5},{wch:26},{wch:14},{wch:14},
-    {wch:10},{wch:10},{wch:16},
-    {wch:10},{wch:10},{wch:12},
-    {wch:16},{wch:14},
-    {wch:16},{wch:18},{wch:16},{wch:18}
-  ];
-
-  /* ================= STYLE CELL ================= */
-  Object.keys(ws).forEach(addr=>{
-    if(addr[0]==="!") return;
-    const cell=ws[addr];
-    const row=XLSX.utils.decode_cell(addr).r;
-
-    cell.s=cell.s||{};
-
-    /* ===== JUDUL TANPA BORDER ===== */
-    if(row<=2){
-      cell.s.font={bold:true};
-      cell.s.alignment={horizontal:"center",vertical:"center"};
-      return;
-    }
-
-    /* ===== BORDER GRID ===== */
-    cell.s.border={
-      top:{style:"thin"},
-      bottom:{style:"thin"},
-      left:{style:"thin"},
-      right:{style:"thin"}
-    };
-
-    /* ===== HEADER ===== */
-    if(row===4||row===5){
-      cell.s.fill={fgColor:{rgb:"CFE2F3"}};
-      cell.s.font={bold:true};
-      cell.s.alignment={
-        horizontal:"center",
-        vertical:"center",
-        wrapText:true
-      };
-    }else{
-      cell.s.alignment={
-        horizontal:addr.startsWith("B")?"left":"center",
-        vertical:"center",
-        wrapText:false
-      };
-    }
-
-    /* ===== 0 → "-" ===== */
-    if(cell.v===0||cell.v==="0"){
-      cell.v="-";
-      cell.t="s";
-    }
-
-    /* ===== PERSEN 2 DESIMAL ===== */
-    if(typeof cell.v==="string"&&cell.v.includes("%")){
-      const n=Number(cell.v.replace("%","").replace(",","."));
-      if(!isNaN(n)){
-        cell.v=n.toLocaleString("id-ID",{
-          minimumFractionDigits:2,
-          maximumFractionDigits:2
-        })+" %";
-        cell.t="s";
+  /* =====================================================
+     DATA
+  ===================================================== */
+  dataRekapArray.forEach(r=>{
+    aoa.push(r.map(v=>{
+      if(v===0||v==="0") return "-";
+      if(typeof v==="string" && v.includes("%")){
+        const n = Number(v.replace("%","").replace(",","."));
+        return isNaN(n) ? "-" :
+          n.toLocaleString("id-ID",{minimumFractionDigits:2,maximumFractionDigits:2})+" %";
       }
-    }
+      return v;
+    }));
   });
 
-  /* ================= RESUME DI BAWAH ================= */
-  let startRow = XLSX.utils.decode_range(ws["!ref"]).e.r + 2;
+  /* =====================================================
+     HITUNG JUMLAH & TOTAL
+  ===================================================== */
+  const sum = Array(16).fill(0);
+  dataRekapArray.forEach(r=>{
+    [2,3,4,5,6,7,8,9,10,11].forEach(i=>{
+      sum[i]+=Number(r[i])||0;
+    });
+  });
 
-  ws["!merges"].push({s:{r:startRow,c:0},e:{r:startRow,c:3}});
-  ws["A"+(startRow+1)]="RANGKUMAN KABUPATEN BARITO TIMUR";
-  ws["A"+(startRow+1)].s={font:{bold:true}};
+  aoa.push([
+    "","JUMLAH","","",
+    sum[4],sum[5],sum[6],
+    sum[7],sum[8],sum[9],
+    sum[10],sum[11],
+    "","","",""
+  ]);
 
-  resumeArray.forEach((r,i)=>{
-    ws["A"+(startRow+3+i)]={v:r[0],t:"s"};
-    ws["B"+(startRow+3+i)]={v:r[1],t:"s"};
+  aoa.push([
+    "","JUMLAH TOTAL","","",
+    sum[4]+sum[5],"",
+    "",
+    sum[7]+sum[8],"",
+    sum[9],
+    sum[10],
+    sum[11],
+    "",
+    "",
+    "",
+    ""
+  ]);
 
-    ws["A"+(startRow+3+i)].s={
-      border:{top:{style:"thin"},bottom:{style:"thin"},left:{style:"thin"},right:{style:"thin"}},
-      alignment:{horizontal:"left",vertical:"center"}
-    };
-    ws["B"+(startRow+3+i)].s={
-      border:{top:{style:"thin"},bottom:{style:"thin"},left:{style:"thin"},right:{style:"thin"}},
-      alignment:{horizontal:"right",vertical:"center"}
+  aoa.push([]);
+
+  /* =====================================================
+     RESUME (TIDAK FULL WIDTH)
+  ===================================================== */
+  aoa.push(["RANGKUMAN KABUPATEN BARITO TIMUR"]);
+  aoa.push([]);
+  resumeArray.forEach(r=>aoa.push([r[0],r[1]]));
+
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+  /* =====================================================
+     MERGE
+  ===================================================== */
+  ws["!merges"] = [
+    {s:{r:0,c:0},e:{r:0,c:15}},
+    {s:{r:1,c:0},e:{r:1,c:15}},
+    {s:{r:2,c:0},e:{r:2,c:15}},
+    {s:{r:4,c:4},e:{r:4,c:5}},
+    {s:{r:4,c:7},e:{r:4,c:9}},
+    {s:{r:aoa.length-resumeArray.length-2,c:0},e:{r:aoa.length-resumeArray.length-2,c:1}}
+  ];
+
+  /* =====================================================
+     FREEZE (JUDUL + HEADER)
+  ===================================================== */
+  ws["!freeze"] = {ySplit:6};
+
+  /* =====================================================
+     WIDTH
+  ===================================================== */
+  ws["!cols"] = [
+    {wch:5},{wch:26},{wch:14},{wch:14},
+    {wch:10},{wch:10},{wch:18},
+    {wch:10},{wch:10},{wch:12},
+    {wch:18},{wch:14},
+    {wch:18},{wch:20},{wch:18},{wch:18}
+  ];
+
+  /* =====================================================
+     STYLE
+  ===================================================== */
+  Object.keys(ws).forEach(a=>{
+    if(a[0]==="!") return;
+    ws[a].s = {
+      border:{
+        top:{style:"thin"},
+        bottom:{style:"thin"},
+        left:{style:"thin"},
+        right:{style:"thin"}
+      },
+      alignment:{
+        vertical:"center",
+        horizontal:"center",
+        wrapText:false
+      }
     };
   });
 
   XLSX.utils.book_append_sheet(wb,ws,"Rekap Kecamatan");
-
-  /* ================= SIMPAN ================= */
   XLSX.writeFile(wb,"Laporan_Rasio_Elektrifikasi.xlsx");
 }
-
 
 
 
