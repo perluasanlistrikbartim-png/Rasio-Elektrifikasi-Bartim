@@ -475,6 +475,21 @@ th,td{
 .export-box:hover .export-menu{
   display:block;
 }
+@media print{
+  .table-scroll{
+    max-height:none !important;
+    overflow:visible !important;
+  }
+
+  thead th{
+    position:static !important;
+  }
+
+  .resume-box{
+    break-inside:avoid;
+    margin-top:16px;
+  }
+}
 
 </style>
 
@@ -897,48 +912,89 @@ document.getElementById("rTidak").innerText = formatPersen(rasioTidak);
 }
 
 function exportPDF(){
-  const element = document.querySelector(".rekap-wrapper");
+  document.body.classList.add("mode-print");
 
-  const opt = {
-    margin:       10,
-    filename:     'Rekap_Rasio_Elektrifikasi_Barito_Timur.pdf',
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2, useCORS:true },
-    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
-  };
+  const el = document.querySelector(".rekap-wrapper");
 
-  html2pdf().set(opt).from(element).save();
+  html2pdf().set({
+    margin:8,
+    filename:'Laporan_Rasio_Elektrifikasi_Bartim.pdf',
+    image:{ type:'jpeg', quality:0.98 },
+    html2canvas:{
+      scale:2,
+      scrollY:0,
+      useCORS:true
+    },
+    jsPDF:{
+      unit:'mm',
+      format:'a4',
+      orientation:'landscape'
+    }
+  }).from(el).save().then(()=>{
+    document.body.classList.remove("mode-print");
+  });
 }
+
 
 function exportExcel(){
   const table = document.getElementById("tblRekap");
+
   const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.table_to_sheet(table,{raw:true});
 
-  // Convert table → sheet
-  const ws = XLSX.utils.table_to_sheet(table, { raw:true });
-
-  /* ===== MERGE HEADER ===== */
+  /* ================= MERGE HEADER ================= */
   ws['!merges'] = [
-    { s:{r:0,c:4}, e:{r:0,c:5} },   // Desa Berlistrik
-    { s:{r:0,c:7}, e:{r:0,c:9} }    // RT Berlistrik
+    {s:{r:0,c:4}, e:{r:0,c:5}},
+    {s:{r:0,c:7}, e:{r:0,c:9}}
   ];
 
-  /* ===== FREEZE PANE ===== */
+  /* ================= FREEZE PANE ================= */
   ws['!freeze'] = {
-    xSplit: 2,  // freeze kolom No + Kecamatan
-    ySplit: 2,  // freeze 2 baris header
-    topLeftCell: "C3"
+    xSplit:2,
+    ySplit:2,
+    topLeftCell:"C3"
   };
 
-  /* ===== AUTO WIDTH ===== */
-  ws['!cols'] = Array(16).fill({ wch:18 });
+  /* ================= WIDTH KOLUMN ================= */
+  ws['!cols'] = [
+    {wch:5},   // No
+    {wch:20},  // Kecamatan
+    {wch:12},
+    {wch:12},
+    {wch:10},
+    {wch:10},
+    {wch:14},
+    {wch:10},
+    {wch:10},
+    {wch:12},
+    {wch:14},
+    {wch:14},
+    {wch:16},
+    {wch:16},
+    {wch:14},
+    {wch:18}
+  ];
+
+  /* ================= BORDER SEMUA SEL ================= */
+  Object.keys(ws).forEach(cell=>{
+    if(cell[0] === '!') return;
+    ws[cell].s = {
+      border:{
+        top:{style:"thin"},
+        bottom:{style:"thin"},
+        left:{style:"thin"},
+        right:{style:"thin"}
+      },
+      alignment:{
+        vertical:"center",
+        horizontal:"center",
+        wrapText:true
+      }
+    };
+  });
 
   XLSX.utils.book_append_sheet(wb, ws, "Rekap Kecamatan");
-
-  XLSX.writeFile(
-    wb,
-    "Rekap_Rasio_Elektrifikasi_Barito_Timur.xlsx"
-  );
+  XLSX.writeFile(wb,"Rekap_Rasio_Elektrifikasi_Bartim.xlsx");
 }
 
 
