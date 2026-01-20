@@ -890,15 +890,12 @@ function exportExcel(){
 
   const wb = XLSX.utils.book_new();
 
-  /* =====================================================
-     HEADER & JUDUL
-  ===================================================== */
+  /* ================= HEADER & DATA ================= */
   const aoa = [
     ["RASIO ELEKTRIFIKASI DAN RASIO KELURAHAN/DESA BERLISTRIK BARITO TIMUR"],
     ["PROVINSI KALIMANTAN TENGAH"],
     [periodeText],
     [],
-    // ===== HEADER BARIS 1 =====
     [
       "No","Kecamatan","Jumlah Kelurahan","Jumlah Desa",
       "Desa / Kelurahan Berlistrik","","Desa / Kelurahan Belum Berlistrik",
@@ -910,7 +907,6 @@ function exportExcel(){
       "Rasio Elektrifikasi",
       "Rasio Desa Berlistrik"
     ],
-    // ===== HEADER BARIS 2 =====
     [
       "","","","",
       "PLN","Non PLN","",
@@ -920,9 +916,6 @@ function exportExcel(){
     ]
   ];
 
-  /* =====================================================
-     DATA
-  ===================================================== */
   dataRekapArray.forEach(r=>{
     aoa.push(r.map(v=>{
       if(v===0||v==="0") return "-";
@@ -935,9 +928,7 @@ function exportExcel(){
     }));
   });
 
-  /* =====================================================
-     HITUNG JUMLAH & TOTAL
-  ===================================================== */
+  /* ================= HITUNG JUMLAH ================= */
   const sum = Array(16).fill(0);
   dataRekapArray.forEach(r=>{
     [2,3,4,5,6,7,8,9,10,11].forEach(i=>{
@@ -945,6 +936,7 @@ function exportExcel(){
     });
   });
 
+  const rowJumlah = aoa.length;
   aoa.push([
     "","JUMLAH","","",
     sum[4],sum[5],sum[6],
@@ -953,6 +945,7 @@ function exportExcel(){
     "","","",""
   ]);
 
+  const rowTotal = aoa.length;
   aoa.push([
     "","JUMLAH TOTAL","","",
     sum[4]+sum[5],"",
@@ -961,43 +954,38 @@ function exportExcel(){
     sum[9],
     sum[10],
     sum[11],
-    "",
-    "",
-    "",
-    ""
+    "","","",""
   ]);
 
   aoa.push([]);
 
-  /* =====================================================
-     RESUME (TIDAK FULL WIDTH)
-  ===================================================== */
-  aoa.push(["RANGKUMAN KABUPATEN BARITO TIMUR"]);
+  /* ================= RESUME (GESER KE KANAN) ================= */
+  const rowResumeTitle = aoa.length;
+  aoa.push(["","RANGKUMAN KABUPATEN BARITO TIMUR"]);
   aoa.push([]);
-  resumeArray.forEach(r=>aoa.push([r[0],r[1]]));
+
+  resumeArray.forEach(r=>{
+    aoa.push(["",r[0],r[1]]);
+  });
 
   const ws = XLSX.utils.aoa_to_sheet(aoa);
 
-  /* =====================================================
-     MERGE
-  ===================================================== */
+  /* ================= MERGE ================= */
   ws["!merges"] = [
     {s:{r:0,c:0},e:{r:0,c:15}},
     {s:{r:1,c:0},e:{r:1,c:15}},
     {s:{r:2,c:0},e:{r:2,c:15}},
     {s:{r:4,c:4},e:{r:4,c:5}},
     {s:{r:4,c:7},e:{r:4,c:9}},
-    {s:{r:aoa.length-resumeArray.length-2,c:0},e:{r:aoa.length-resumeArray.length-2,c:1}}
+    {s:{r:rowJumlah,c:0},e:{r:rowJumlah,c:1}},
+    {s:{r:rowTotal,c:0},e:{r:rowTotal,c:1}},
+    {s:{r:rowResumeTitle,c:1},e:{r:rowResumeTitle,c:2}}
   ];
 
-  /* =====================================================
-     FREEZE (JUDUL + HEADER)
-  ===================================================== */
-  ws["!freeze"] = {ySplit:6};
+  /* ================= FREEZE ================= */
+  ws["!freeze"] = { ySplit:6 };
 
-  /* =====================================================
-     WIDTH
-  ===================================================== */
+  /* ================= WIDTH ================= */
   ws["!cols"] = [
     {wch:5},{wch:26},{wch:14},{wch:14},
     {wch:10},{wch:10},{wch:18},
@@ -1006,11 +994,20 @@ function exportExcel(){
     {wch:18},{wch:20},{wch:18},{wch:18}
   ];
 
-  /* =====================================================
-     STYLE
-  ===================================================== */
+  /* ================= STYLE ================= */
   Object.keys(ws).forEach(a=>{
     if(a[0]==="!") return;
+
+    const row = parseInt(a.match(/\d+/)) - 1;
+
+    /* HILANGKAN BORDER JUDUL */
+    if(row <= 2){
+      ws[a].s = {
+        alignment:{ horizontal:"center", vertical:"center" }
+      };
+      return;
+    }
+
     ws[a].s = {
       border:{
         top:{style:"thin"},
